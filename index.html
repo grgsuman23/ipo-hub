@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IPO Hub</title>
+<meta name="theme-color" content="#0C4DA1">
+<meta name="description" content="Multi-account MeroShare IPO apply, results and portfolio dashboard">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IPO Hub">
+<style>
+:root{--r:#ED1B24;--b:#0C4DA1;--bg:#f6f7fb;--c:#fff;--t:#1b1f2a;--m:#6b7280}
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:var(--t)}
+header{background:var(--b);color:#fff;padding:12px 20px;border-bottom:4px solid var(--r)}header h1{font-size:18px;margin:0}
+#bar{display:flex;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}
+#bar button{background:#eef2fb;color:#0C4DA1;border:0;padding:9px 16px;cursor:pointer;font-size:14px;border-radius:6px;font-weight:600}
+#bar button.on{background:#0C4DA1;color:#fff}
+main{padding:16px;max-width:1150px;margin:auto}
+.card{background:var(--c);border-radius:10px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow-x:auto}
+h3{margin:0 0 10px;font-size:15px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #e5e7eb;vertical-align:middle}th{color:var(--m);font-weight:600}
+.p{background:var(--r);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
+.s{background:var(--b);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
+.mini{background:#eef2fb;color:var(--b);border:0;padding:4px 9px;border-radius:5px;cursor:pointer;font-size:12px;text-decoration:none;display:inline-block;margin:1px}
+input{padding:7px;border:1px solid #cbd5e1;border-radius:6px;margin:3px}
+.err{color:var(--r)}.ok{color:#128a3e}.m{color:var(--m)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.g{background:#dcfce7;color:#166534}.r{background:#fee2e2;color:#b91c1c}.y{background:#fef3c7;color:#92400e}.n{background:#e5e7eb;color:#4b5563}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:var(--c);border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.kpi .v{font-size:28px;font-weight:700}.kpi .l{color:var(--m);font-size:12px}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#e5e7eb;min-width:120px}.bar i{display:block;height:100%}
+.up{color:#16a34a}.dn{color:#ED1B24}
+.warn{background:#fef3c7;color:#92400e;padding:10px 14px;border-radius:8px;margin-bottom:14px}
+.legend span{margin-right:14px;font-size:12px}.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+
+.arow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #e5e7eb;cursor:pointer}
+.arow input{width:20px;height:20px;margin:0;accent-color:#0C4DA1}.arow .an{flex:1;font-weight:600}.arow.dis{opacity:.55;cursor:default}
+html{-webkit-text-size-adjust:100%}
+header{display:flex;align-items:center;gap:8px;padding-top:calc(12px + env(safe-area-inset-top))}
+header h1{flex:1}
+header .hb{background:rgba(255,255,255,.15);color:#fff;border:0;padding:7px 11px;border-radius:6px;font-size:13px;cursor:pointer}
+#bar{position:sticky;top:0;z-index:5;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#bar::-webkit-scrollbar{display:none}
+#bar button{flex:0 0 auto}
+#off{background:#fef3c7;color:#92400e;text-align:center;padding:6px;font-size:13px}
+@media (max-width:640px){
+ main{padding:10px}.card{padding:12px;border-radius:8px}
+ th,td{padding:6px 6px;font-size:13px;white-space:nowrap}
+ .kpis{grid-template-columns:repeat(2,1fr);gap:8px}.kpi .v{font-size:22px}
+ input{font-size:16px}
+}
+</style></head><body>
+<header><h1>🇳🇵 IPO Hub <small style="font-weight:400;opacity:.7;font-size:11px">app 1.1</small></h1>
+<button class="hb" id="inst" style="display:none" onclick="install()">Install</button><button class="hb" onclick="logout()">Lock</button></header>
+<div id="off" style="display:none">You are offline. Data will load when you reconnect.</div>
+<div id="bar"><button data-t="ipo" onclick="sw('ipo')">Apply IPO</button><button data-t="res" onclick="sw('res')">Results</button><button data-t="dash" onclick="sw('dash')">Dashboard</button><button data-t="pf" onclick="sw('pf')">Portfolio</button><button data-t="acc" onclick="sw('acc')">Accounts</button></div>
+<main id="m"><p class="m">Loading…</p></main>
+<script>
+window.addEventListener('unhandledrejection',function(e){if(e.reason instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.reason.message);return}alert('Error: '+(e.reason&&e.reason.message||e.reason))});
+window.onerror=function(m){var e=document.getElementById('m');if(e)e.innerHTML='<p class="err">Script error: '+m+'</p>'};
+function sw(k){tab=k;go()}
+let tab='ipo',ACC=[],VIEW=null,VIEW_TS=0;
+const $=s=>document.querySelector(s);
+const CDSC_URL='https:'+String.fromCharCode(47,47)+'iporesult.cdsc.com.np/';
+let CUR=0;const READ=new Set(['listAccounts','getIssues','getPortfolio','getSettings','getHistory','getWacc']);
+const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jlopyKCMBssCywzvqJbM0hGQ/exec';
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let API=LS.get('ipohub_api')||DEFAULT_API,PASS=LS.get('ipohub_pass')||'';
+class AuthError extends Error{}
+async function rpc(fn,args){
+  if(!navigator.onLine)throw new Error('You are offline. Connect to the internet and try again.');
+  let r;
+  try{r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pass:PASS,fn:fn,args:args})})}
+  catch(e){throw new Error('Could not reach your Apps Script. Check the deployment is set to "Anyone" and the URL is the /exec one.')}
+  const t=await r.text();let j;
+  try{j=JSON.parse(t)}catch(e){throw new Error('Apps Script did not return data (HTTP '+r.status+'). Most likely the deployment access is not "Anyone", or a new version was not deployed.')}
+  if(!j.ok){if(/passcode/i.test(j.error||''))throw new AuthError(j.error);throw new Error(j.error||'Unknown error')}
+  return j.data}
+const runNG=(fn,...a)=>rpc(fn,a);
+/* read-only calls from a tab you already left are dropped, so a slow tab can never overwrite the one you clicked */
+const run=(fn,...a)=>{const gen=CUR;return new Promise((res,rej)=>rpc(fn,a)
+  .then(v=>{if(READ.has(fn)&&gen!==CUR)return;res(v)},e=>{if(READ.has(fn)&&gen!==CUR)return;rej(e)}))};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n==null||n===''?'–':Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+const all=(fn,...a)=>Promise.all(ACC.map(async x=>({label:x.label,...await run(fn,x.label,...a)})));
+const errs=l=>l.filter(x=>!x.ok).map(x=>`<p class="err">${esc(x.label)}: ${esc(x.error)}</p>`).join('');
+const STAGE={verified:'<span class="pill g">Verified</span>',rejected:'<span class="pill r">Rejected</span>',submitted:'<span class="pill y">Awaiting verification</span>',cancelled:'<span class="pill n">Cancelled</span>'};
+const stg=r=>(STAGE[r.stage]||'')+(r.balance?' <span class="pill r">Bank balance</span>':'')+(r.stage=='rejected'&&r.remark?`<div class="m" style="font-size:12px">${esc(r.remark)}</div>`:'');
+const PILL={allotted:'<span class="pill g">Allotted</span>',not:'<span class="pill r">Not allotted</span>',pending:'<span class="pill y">Pending</span>',other:'<span class="pill n">Other</span>'};
+
+async function go(){
+  CUR++;
+  if(!PASS){login();return}
+  document.querySelectorAll('#bar button').forEach(b=>b.classList.toggle('on',b.dataset.t==tab));
+  $('#m').innerHTML='<p class="m">Loading… logging into each account. Results/Dashboard can take 10–30 seconds the first time. You can switch tabs meanwhile.</p>';
+  try{ACC=await run('listAccounts');await({ipo,res,dash,pf,acc}[tab])()}catch(e){if(e instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.message);return}$('#m').innerHTML=`<div class="card"><p class="err">${esc(e.message)}</p><button class="s" onclick="go()">Try again</button></div>`}}
+
+/* ---------- Apply IPO ---------- */
+const some=(labels,fn,...a)=>Promise.all(labels.map(async l=>({label:l,...await run(fn,l,...a)})));
+const ACT={apply:'<span class="pill y">Not applied</span>',inProcess:'<span class="pill g">Applied</span>',edit:'<span class="pill g">Applied</span>',reapply:'<span class="pill r">Can reapply</span>'};
+let ISSUES={};
+async function ipo(){
+  if(!ACC.length){$('#m').innerHTML='<div class="card">Add an account first (Accounts tab).</div>';return}
+  const my=CUR,r=await all('getIssues');if(my!==CUR)return;ISSUES={};
+  r.filter(x=>x.ok).forEach(x=>x.data.forEach(i=>{const m=ISSUES[i.companyShareId]=ISSUES[i.companyShareId]||{id:i.companyShareId,company:i.companyName,scrip:i.scrip,type:i.shareTypeName,group:i.shareGroupName,closes:i.issueCloseDate,acc:{}};m.acc[x.label]=i.action}));
+  const l=Object.values(ISSUES);
+  $('#m').innerHTML=errs(r)+(l.length?l.map(i=>{
+    const rows=ACC.map(a=>{const act=i.acc[a.label],can=act==='apply';
+      return `<label class="arow${can?'':' dis'}"><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'checked':'disabled'} onchange="cnt(${i.id})">
+      <span class="an">${esc(a.label)}</span><span class="m" style="font-size:12px">${esc(a.kitta||10)} kitta</span>${act?(ACT[act]||'<span class="pill n">'+esc(act)+'</span>'):'<span class="pill n">Not eligible</span>'}</label>`}).join('');
+    return `<div class="card" id="iss_${i.id}"><h3>${esc(i.company)} <span class="m">${esc(i.scrip)}</span></h3>
+    <div class="m" style="font-size:12px;margin:-4px 0 8px">${esc(i.type)} ${esc(i.group||'')} · closes ${esc(i.closes)}</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px"><button class="mini" onclick="selAll(${i.id},true)">Select all</button><button class="mini" onclick="selAll(${i.id},false)">Select none</button></div>
+    ${rows}
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+    <label class="m" style="font-size:13px">Kitta <input type="number" min="10" step="10" id="kt_${i.id}" placeholder="Default" style="width:110px"></label>
+    <button class="p" id="ab_${i.id}" onclick="applySel(${i.id})" style="padding:10px 16px">Apply</button></div>
+    <div id="out_${i.id}"></div></div>`}).join(''):'<div class="card m">No open IPOs right now.</div>');
+  l.forEach(i=>cnt(i.id))}
+const picked=id=>[...document.querySelectorAll(`.ck[data-i="${id}"]:checked`)].map(c=>c.value);
+function cnt(id){const n=picked(id).length,b=$('#ab_'+id);if(!b)return;b.disabled=!n;b.style.opacity=n?1:.5;
+  const tot=ACC.filter(a=>ISSUES[id]&&ISSUES[id].acc[a.label]==='apply').length;
+  b.textContent=!n?'Select an account':n===tot&&tot>1?`Apply from all ${n} accounts`:`Apply from ${n} selected account${n>1?'s':''}`}
+function selAll(id,on){document.querySelectorAll(`.ck[data-i="${id}"]:not(:disabled)`).forEach(c=>c.checked=on);cnt(id)}
+async function applySel(id){
+  const labels=picked(id),i=ISSUES[id];if(!labels.length)return;
+  const kv=$('#kt_'+id).value.trim(),k=kv?parseInt(kv,10):null;
+  if(kv&&(!(k>=10)||k%10)){alert('Kitta must be 10 or more, in multiples of 10.');return}
+  const b=$('#ab_'+id),o=$('#out_'+id);b.disabled=true;b.textContent='Checking (dry run)…';
+  try{
+    const dry=await some(labels,'applyIssue',id,k,true);show(dry,'Dry run (nothing submitted)',o);
+    const ok=dry.filter(x=>x.ok&&x.data.status==='dry-run').map(x=>x.label);
+    if(!ok.length){alert('None of the selected accounts can apply. See the dry run result.');return}
+    if(!confirm(`Apply for "${i.company}" from ${ok.length} account(s):\n\n${ok.join('\n')}\n\nKitta: ${k||'each account\'s default'}\nThis blocks money in each ASBA bank account.`))return;
+    b.textContent='Submitting…';show(await some(ok,'applyIssue',id,k,false),'Submitted',o);
+  }finally{cnt(id)}}
+function show(r,t,el){(el||$('#out')).innerHTML=`<div class="card"><h3>${t}</h3><table>${r.map(x=>`<tr><td>${esc(x.label)}</td>
+  <td class="${x.ok&&x.data.status!='skipped'?'ok':'err'}">${x.ok?esc(x.data.status)+' – '+esc(x.data.detail):esc(x.error)}</td></tr>`).join('')}</table></div>`}
+
+/* ---------- shared result data ---------- */
+let VIEW_P=null;
+const allNG=(fn,...a)=>Promise.all(ACC.map(async x=>({label:x.label,...await runNG(fn,x.label,...a)})));
+function loadView(force){
+  if(!force&&VIEW&&Date.now()-VIEW_TS<120000)return Promise.resolve(VIEW);
+  if(!force&&VIEW_P)return VIEW_P;                       /* Results and Dashboard share one in-flight load */
+  const p=VIEW_P=(async()=>{const per=await allNG('getResults');const v=await runNG('buildView',per);VIEW=v;VIEW_TS=Date.now();return v})();
+  p.then(()=>{if(VIEW_P===p)VIEW_P=null},()=>{if(VIEW_P===p)VIEW_P=null});
+  return p}
+async function refresh(){VIEW=null;VIEW_P=null;go()}
+const bar=(a,n,p)=>{const t=a+n+p||1;return `<div class="bar"><i style="width:${a/t*100}%;background:#16a34a"></i><i style="width:${n/t*100}%;background:#ED1B24"></i><i style="width:${p/t*100}%;background:#9ca3af"></i></div>`};
+const LEGEND='<div class="legend"><span><b style="background:#16a34a"></b>Allotted</span><span><b style="background:#ED1B24"></b>Not allotted</span><span><b style="background:#9ca3af"></b>Pending</span></div>';
+const notes=v=>errs(v.errors.map(e=>({...e,ok:false})))+(v.pubError?'<p class="m">ℹ CDSC result list is unavailable (their site rejects Google servers), so "Result out" badges are off. Verified / Allotted / Not allotted still come from MeroShare. To check CDSC first, use Open CDSC, Copy BOID and Mark result on a pending row.</p>':'');
+
+/* ---------- Results: company-wise ---------- */
+async function res(){
+  const my=CUR,v=await loadView();if(my!==CUR)return;
+  $('#m').innerHTML=`<div class="card"><button class="s" onclick="refresh()">↻ Refresh</button>
+   <span class="m"> Result availability is read from iporesult.cdsc.com.np; your allotted / not-allotted status comes from MeroShare, or from what you mark below.</span></div>${notes(v)}`+
+  (v.companies.length?v.companies.map(c=>`<div class="card"><h3>${esc(c.name)} <span class="m">${esc(c.scrip)}</span>
+   ${v.pubError?'<span class="pill n">CDSC status unavailable</span>':c.published?'<span class="pill g">Result out on CDSC</span>':'<span class="pill n">Result not on CDSC yet</span>'}</h3>
+   <table><tr><th>Account</th><th>Application</th><th>Result</th><th>Applied</th><th>Received</th><th></th></tr>
+   ${c.rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${stg(r)}</td><td>${r.stage=='rejected'?'<span class="m">–</span>':PILL[r.cls]+' <span class="m">'+esc(r.status)+'</span>'}</td><td>${fmt(r.applied)}</td><td>${fmt(r.received)}</td><td>
+   ${r.cls=='pending'&&(c.published||v.pubError)?`<a class="mini" target="_blank" rel="noopener" href="${CDSC_URL}">Open CDSC</a><button class="mini" data-boid="${esc(r.boid)}" onclick="copyBoid(this)">Copy BOID</button><button class="mini" data-k="${esc(c.key)}" data-l="${esc(r.label)}" onclick="mark(this)">Mark result</button>`:''}
+   ${r.src=='Manual'?`<button class="mini" data-k="${esc(c.key)}" data-l="${esc(r.label)}" onclick="unmark(this)">Undo</button>`:''}</td></tr>`).join('')}</table></div>`).join(''):'<div class="card m">No applications found yet.</div>')}
+function copyBoid(b){const t=document.createElement('textarea');t.value=b.dataset.boid;document.body.appendChild(t);t.select();
+  try{document.execCommand('copy');b.textContent='Copied ✓'}catch(e){prompt('BOID',b.dataset.boid)}t.remove()}
+async function mark(b){const q=prompt('Result from CDSC: enter allotted kitta (0 if NOT allotted)');if(q===null||q.trim()===''||isNaN(+q))return;
+  await run('markResult',b.dataset.k,b.dataset.l,+q>0?'allotted':'not',+q);VIEW=null;go()}
+async function unmark(b){await run('markResult',b.dataset.k,b.dataset.l,null,0);VIEW=null;go()}
+
+/* ---------- Dashboard ---------- */
+async function dash(){
+  const my=CUR,v=await loadView();if(my!==CUR)return;const t=v.totals,decided=t.allotted+t.not,rate=decided?Math.round(t.allotted/decided*100):0;
+  const kp=(l,val,c)=>`<div class="kpi"><div class="v" style="color:${c}">${val}</div><div class="l">${l}</div></div>`;
+  $('#m').innerHTML=notes(v)+`<div class="card"><button class="s" onclick="refresh()">↻ Refresh</button></div>
+  <div class="kpis">${kp('Applications',t.applied,'#0C4DA1')}${kp('Allotted',t.allotted,'#16a34a')}${kp('Not allotted',t.not,'#ED1B24')}${kp('Pending',t.pending,'#6b7280')}${kp('Allotment rate',rate+'%','#0C4DA1')}${kp('Kitta allotted',fmt(t.kitta),'#16a34a')}</div>
+  <div class="kpis">${kp('Verified',t.verified,'#16a34a')}${kp('Rejected',t.rejected,'#ED1B24')}${kp('Rejected: bank balance',t.balance,'#ED1B24')}${kp('Awaiting verification',t.submitted,'#92400e')}</div>
+  <div class="card"><h3>Overall</h3>${bar(t.allotted,t.not,t.pending)}<br>${LEGEND}</div>
+  <div class="card"><h3>By account</h3><table><tr><th>Account</th><th>Applied</th><th>Verified</th><th>Rejected</th><th>Allotted</th><th>Not allotted</th><th>Pending</th><th>Kitta</th><th style="width:30%"></th></tr>
+  ${Object.entries(v.accounts).map(([k,a])=>`<tr><td>${esc(k)}</td><td>${a.applied}</td><td class="ok">${a.verified}</td><td class="err">${a.rejected}${a.balance?' ('+a.balance+' bank balance)':''}</td><td class="ok">${a.allotted}</td><td class="err">${a.not}</td><td>${a.pending}</td><td>${fmt(a.kitta)}</td><td>${bar(a.allotted,a.not,a.pending)}</td></tr>`).join('')}</table></div>
+  <div class="card"><h3>By company</h3><table><tr><th>Company</th><th>CDSC</th><th>Applied</th><th>Rejected</th><th>Allotted</th><th>Not</th><th>Pending</th><th style="width:25%"></th></tr>
+  ${v.companies.map(c=>{const n=k=>c.rows.filter(r=>r.cls==k).length,a=n('allotted'),x=n('not'),p=n('pending');
+   return `<tr><td><b>${esc(c.name)}</b> <span class="m">${esc(c.scrip)}</span></td><td>${v.pubError?'–':c.published?'<span class="pill g">out</span>':'<span class="pill n">no</span>'}</td><td>${c.rows.length}</td><td class="err">${c.rows.filter(r=>r.stage=='rejected').length}</td><td class="ok">${a}</td><td class="err">${x}</td><td>${p}</td><td>${bar(a,x,p)}</td></tr>`}).join('')}</table></div>`}
+
+/* ---------- Portfolio ---------- */
+const num=v=>v==null||v===''||isNaN(+v)?null:+v;
+const sg=n=>(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
+const pc=n=>n==null?'–':(n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'%';
+const cl=n=>n>0?'up':n<0?'dn':'m';
+const rchg=r=>r.prevValue==null?0:(r.value||0)-r.prevValue;
+const rpct=r=>r.prevValue?rchg(r)/r.prevValue*100:null;
+function agg(rows){let v=0,p=0;rows.forEach(r=>{v+=r.value||0;p+=r.prevValue==null?(r.value||0):r.prevValue});return{value:v,prev:p,chg:v-p,pct:p?(v-p)/p*100:0,n:rows.length}}
+function trend(h){
+  if(h.length<2)return '<p class="m">Not enough history yet. Click "Save snapshot" (or enable the daily auto-snapshot from the sheet menu) to build a trend line.</p>';
+  const W=640,H=150,P=8,vals=h.map(x=>x.total),min=Math.min(...vals),max=Math.max(...vals),rng=(max-min)||1;
+  const pts=h.map((x,i)=>(P+i*(W-2*P)/(h.length-1)).toFixed(1)+','+(H-P-(x.total-min)/rng*(H-2*P)).toFixed(1)).join(' ');
+  const up=vals[vals.length-1]>=vals[0];
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:150px"><polyline fill="none" stroke="${up?'#16a34a':'#ED1B24'}" stroke-width="2" points="${pts}"/></svg>
+  <div class="m" style="display:flex;justify-content:space-between"><span>${esc(h[0].date)} · Rs ${fmt(h[0].total)}</span><span>${esc(h[h.length-1].date)} · Rs ${fmt(h[h.length-1].total)}</span></div>`}
+const wbar=w=>`<div class="bar"><i style="width:${Math.min(100,Math.max(0,w))}%;background:#0C4DA1"></i></div>`;
+
+let PFD=null;
+function pagg(rows){let c=0,v=0,n=0;rows.forEach(x=>{if(x.cost!=null&&x.value!=null){c+=x.cost;v+=x.value;n++}});return{cost:c,value:v,pnl:v-c,pct:c?(v-c)/c*100:null,n:n,total:rows.length}}
+async function pf(){
+  const my=CUR,[r,hist,wc]=await Promise.all([all('getPortfolio'),run('getHistory').catch(()=>[]),run('getWacc').catch(()=>({map:{},url:''}))]);
+  if(my!==CUR)return;
+  PFD={r:r,hist:hist,W:wc.map||{},url:wc.url||''};renderPf()}
+async function editWacc(b){
+  const l=b.dataset.l,s=b.dataset.s,cur=b.dataset.w;
+  const v=prompt('WACC per share for '+s+' in '+l+' (leave blank to clear):',cur||'');if(v===null)return;
+  const n=v.trim()===''?0:parseFloat(v.replace(/,/g,''));if(isNaN(n)||n<0){alert('Please enter a number');return}
+  await run('setWacc',l,s,n);const k=l+'|'+s.trim().toUpperCase();if(n>0)PFD.W[k]=n;else delete PFD.W[k];renderPf()}
+async function prepWacc(b){
+  const items=[];PFD.r.filter(a=>a.ok).forEach(a=>a.data.rows.forEach(x=>items.push({label:a.label,scrip:x.scrip})));
+  b.disabled=true;b.textContent='Preparing…';const res=await run('prepareWaccSheet',items);
+  b.textContent=res.added?('Added '+res.added+' rows. Open the WACC tab in your sheet and type the WACC values, then Refresh.'):'All holdings are already listed in the WACC tab.'}
+
+function renderPf(){
+  const {r,hist,W,url}=PFD,okA=r.filter(a=>a.ok);
+  const A=okA.map(a=>({label:a.label,keys:a.data.keys,rows:a.data.rows.map(x=>{const w=W[a.label+'|'+String(x.scrip).trim().toUpperCase()]||null,cost=w?x.qty*w:null;
+    return{...x,acct:a.label,wacc:w,cost:cost,pnl:cost!=null&&x.value!=null?x.value-cost:null}})}));
+  const rowsAll=A.flatMap(a=>a.rows),T=agg(rowsAll),P=pagg(rowsAll),HASPREV=rowsAll.some(x=>x.prevValue!=null);
+  const S={};rowsAll.forEach(x=>{const s=S[x.scrip]=S[x.scrip]||{scrip:x.scrip,name:x.name,qty:0,value:0,prevValue:0,ltp:x.ltp,prev:x.prev,accts:new Set(),cq:0,cc:0,cv:0,cn:0};
+    s.qty+=x.qty||0;s.value+=x.value||0;s.prevValue+=x.prevValue==null?(x.value||0):x.prevValue;s.accts.add(x.acct);
+    if(x.cost!=null&&x.value!=null){s.cq+=x.qty;s.cc+=x.cost;s.cv+=x.value;s.cn++}});
+  const list=Object.values(S).sort((a,b)=>b.value-a.value);
+  const mv=list.filter(s=>s.prevValue>0&&HASPREV).map(s=>({scrip:s.scrip,p:(s.value-s.prevValue)/s.prevValue*100})).sort((a,b)=>b.p-a.p);
+  const best=mv[0],worst=mv[mv.length-1],missing=P.total-P.n;
+  const kp=(l,v,c,sub)=>`<div class="kpi"><div class="v ${c||''}" style="${c?'':'color:#0C4DA1'}">${v}</div><div class="l">${l}</div>${sub?`<div class="${c||'m'}" style="font-size:12px">${sub}</div>`:''}</div>`;
+  const hasP=P.n>0;
+  $('#m').innerHTML=errs(r)+`<div class="card"><button class="s" onclick="go()">↻ Refresh</button> <button class="s" onclick="snap(this)">Save snapshot to Google Sheet</button>
+  <span class="m"> Day gain/loss = last traded price vs previous close (last session when the market is closed). Total gain/loss = value minus cost at your WACC, before tax and selling charges.</span></div>
+  ${HASPREV?'':`<div class="card"><p class="err">MeroShare did not return previous-close prices, so day gain/loss cannot be calculated yet.</p><p class="m">Fields received: ${esc((A[0]&&A[0].keys||[]).join(', '))}. Send me this list and I will map the right one.</p></div>`}
+  ${missing>0?`<div class="warn">WACC is missing for <b>${missing}</b> of ${P.total} holdings, so they are left out of the total gain/loss. Click ✎ next to a holding to enter its WACC, or
+   <button class="mini" onclick="prepWacc(this)">Prepare WACC sheet</button> to list every holding in the WACC tab of your Google Sheet and fill the numbers in bulk.
+   ${url?`<a class="mini" target="_blank" rel="noopener" href="${esc(url)}">Open Google Sheet</a>`:''}</div>`:''}
+  <div class="kpis">${kp('Total portfolio value','Rs '+fmt(T.value))}${kp("Today's gain / loss",HASPREV?sg(T.chg):'–',HASPREV?cl(T.chg):'m',HASPREV?pc(T.pct):'')}
+  ${kp('Invested (cost at WACC)',hasP?'Rs '+fmt(P.cost):'–','',hasP?P.n+' of '+P.total+' holdings':'')}${kp('Total gain / loss',hasP?sg(P.pnl):'–',hasP?cl(P.pnl):'m',hasP?pc(P.pct):'enter WACC')}
+  ${kp('Scrips held',list.length,'',okA.length+' account'+(okA.length==1?'':'s'))}${kp('Best mover today',best?esc(best.scrip):'–',best?'up':'m',best?pc(best.p):'')}${kp('Worst mover today',worst?esc(worst.scrip):'–',worst?'dn':'m',worst?pc(worst.p):'')}</div>
+  <div class="card"><h3>Subtotal by account</h3><table><tr><th>Account</th><th>Scrips</th><th>Value</th><th>Day gain / loss</th><th>Day %</th><th>Invested</th><th>Total gain / loss</th><th>Return</th><th style="width:16%">Share</th></tr>
+  ${A.map(a=>{const g=agg(a.rows),q=pagg(a.rows);return `<tr><td><b>${esc(a.label)}</b></td><td>${g.n}</td><td>Rs ${fmt(g.value)}</td><td class="${cl(g.chg)}">${HASPREV?sg(g.chg):'–'}</td><td class="${cl(g.pct)}">${HASPREV?pc(g.pct):'–'}</td>
+   <td>${q.n?'Rs '+fmt(q.cost):'–'}</td><td class="${cl(q.pnl)}">${q.n?sg(q.pnl):'–'}${q.n<q.total?'<span class="m">*</span>':''}</td><td class="${cl(q.pnl)}">${q.n?pc(q.pct):'–'}</td><td>${wbar(T.value?g.value/T.value*100:0)}</td></tr>`}).join('')}
+  <tr style="font-weight:700"><td>Total</td><td>${list.length}</td><td>Rs ${fmt(T.value)}</td><td class="${cl(T.chg)}">${HASPREV?sg(T.chg):'–'}</td><td class="${cl(T.pct)}">${HASPREV?pc(T.pct):'–'}</td>
+   <td>${hasP?'Rs '+fmt(P.cost):'–'}</td><td class="${cl(P.pnl)}">${hasP?sg(P.pnl):'–'}</td><td class="${cl(P.pnl)}">${hasP?pc(P.pct):'–'}</td><td></td></tr></table>
+   ${missing>0?'<div class="m" style="font-size:12px">* excludes holdings without a WACC</div>':''}</div>
+  <div class="card"><h3>Portfolio value over time</h3>${trend(hist)}</div>
+  <div class="card"><h3>All accounts combined, by scrip</h3><table><tr><th>Scrip</th><th>Accounts</th><th>Qty</th><th>WACC</th><th>LTP</th><th>Day %</th><th>Day gain / loss</th><th>Value</th><th>Total gain / loss</th><th>Return</th><th style="width:10%">Weight</th></tr>
+  ${list.map(s=>{const ch=s.value-s.prevValue,p=s.prevValue?ch/s.prevValue*100:null,w=s.cq?s.cc/s.cq:null,pl=s.cq?s.cv-s.cc:null,part=s.cn<s.accts.size?'<span class="m">*</span>':'';
+   return `<tr><td><b>${esc(s.scrip)}</b></td><td>${s.accts.size}</td><td>${fmt(s.qty)}</td><td>${w?fmt(w):'–'}${w?part:''}</td><td>${fmt(s.ltp)}</td><td class="${cl(p)}">${HASPREV?pc(p):'–'}</td><td class="${cl(ch)}">${HASPREV?sg(ch):'–'}</td><td>${fmt(s.value)}</td>
+   <td class="${cl(pl)}">${pl!=null?sg(pl):'–'}</td><td class="${cl(pl)}">${pl!=null?pc(s.cc?pl/s.cc*100:null):'–'}</td><td>${wbar(T.value?s.value/T.value*100:0)}</td></tr>`}).join('')}</table></div>`+
+  A.map(a=>{const g=agg(a.rows),q=pagg(a.rows),rows=a.rows.slice().sort((x,y)=>(y.value||0)-(x.value||0));
+   return `<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><h3>${esc(a.label)}</h3>
+   <div><b>Rs ${fmt(g.value)}</b> <span class="${cl(g.chg)}">${HASPREV?'today '+sg(g.chg)+' ('+pc(g.pct)+')':''}</span> <span class="${cl(q.pnl)}">${q.n?' · total '+sg(q.pnl)+' ('+pc(q.pct)+')':''}</span></div></div>
+   <table><tr><th>Scrip</th><th>Qty</th><th>WACC</th><th>Prev close</th><th>LTP</th><th>Day %</th><th>Day gain / loss</th><th>Cost</th><th>Value</th><th>Total gain / loss</th><th>Return</th><th>Weight</th></tr>
+   ${rows.map(x=>`<tr><td><b>${esc(x.scrip)}</b> <span class="m" style="font-size:11px">${esc(x.name)}</span></td><td>${fmt(x.qty)}</td>
+   <td>${x.wacc?fmt(x.wacc):'<span class="m">–</span>'} <button class="mini" data-l="${esc(a.label)}" data-s="${esc(x.scrip)}" data-w="${x.wacc||''}" onclick="editWacc(this)">✎</button></td>
+   <td>${fmt(x.prev)}</td><td>${fmt(x.ltp)}</td><td class="${cl(rpct(x))}">${HASPREV?pc(rpct(x)):'–'}</td><td class="${cl(rchg(x))}">${HASPREV?sg(rchg(x)):'–'}</td>
+   <td>${x.cost!=null?fmt(x.cost):'–'}</td><td>${fmt(x.value)}</td><td class="${cl(x.pnl)}">${x.pnl!=null?sg(x.pnl):'–'}</td><td class="${cl(x.pnl)}">${x.pnl!=null?pc(x.pnl/x.cost*100):'–'}</td>
+   <td>${g.value?((x.value||0)/g.value*100).toFixed(1)+'%':'–'}</td></tr>`).join('')}
+   <tr style="font-weight:700"><td>Subtotal</td><td>${fmt(rows.reduce((s,x)=>s+(x.qty||0),0))}</td><td></td><td></td><td></td><td class="${cl(g.pct)}">${HASPREV?pc(g.pct):'–'}</td><td class="${cl(g.chg)}">${HASPREV?sg(g.chg):'–'}</td>
+   <td>${q.n?fmt(q.cost):'–'}</td><td>Rs ${fmt(g.value)}</td><td class="${cl(q.pnl)}">${q.n?sg(q.pnl):'–'}</td><td class="${cl(q.pnl)}">${q.n?pc(q.pct):'–'}</td><td>100%</td></tr></table></div>`}).join('')}
+async function snap(b){b.disabled=true;b.textContent='Saving…';await run('snapshotAll');b.textContent='Saved ✓'}
+
+/* ---------- Accounts + alerts ---------- */
+async function acc(){
+  const st=await run('getSettings');
+  $('#m').innerHTML=`<div class="card"><h3>Accounts</h3><table><tr><th>Label</th><th>DP</th><th>User</th><th>Bank</th><th>Kitta</th><th></th></tr>
+  ${ACC.map(a=>`<tr><td>${esc(a.label)}</td><td>${a.dp_id}</td><td>${esc(a.username)}</td><td>${esc(a.bank_name)}</td><td>${a.kitta}</td>
+  <td><button class="mini" data-l="${esc(a.label)}" onclick="edit(this.dataset.l)">Edit</button><button class="mini" data-l="${esc(a.label)}" onclick="testLogin(this)">Test login</button><button class="mini" data-l="${esc(a.label)}" onclick="del(this.dataset.l)">Remove</button><div class="m" style="font-size:12px" id="tl_${esc(a.label).replace(/[^a-zA-Z0-9]/g,'_')}"></div></td></tr>`).join('')}</table></div>
+  <div class="card"><h3 id="f_title">Add account</h3>
+  <input id="f_label" placeholder="Label (e.g. Self)"><input id="f_dp" type="number" placeholder="DP code (5 digits)"><input id="f_u" placeholder="MeroShare username"><br>
+  <input id="f_p" type="password" placeholder="MeroShare password"><input id="f_crn" placeholder="CRN"><input id="f_pin" type="password" placeholder="Transaction PIN"><br>
+  <input id="f_bank" placeholder="Bank name contains (e.g. Machhapuchchhre)"><input id="f_k" type="number" value="10" style="width:80px">
+  <button class="s" id="f_btn" onclick="save()">Save account</button> <button id="f_cancel" style="display:none" onclick="go()">Cancel edit</button> <div id="f_msg" class="m"></div></div>
+  <div class="card"><h3>Email alerts for IPO results</h3>
+  <p class="m">Checks iporesult.cdsc.com.np every 30 minutes. You get one email when a result is published for an IPO you applied to, and a summary once allotment is visible for your accounts.</p>
+  <input id="al_e" type="email" placeholder="you@gmail.com" value="${esc(st.email)}" style="width:260px">
+  <button class="s" onclick="alertsOn()">Enable alerts</button> <button onclick="alertsOff()">Disable</button>
+  <span class="${st.enabled?'ok':'m'}"> ${st.enabled?'✓ Active':'Off'}</span><div id="al_msg" class="m"></div></div>`}
+let EDIT=null;
+function edit(l){const a=ACC.find(x=>x.label===l);if(!a)return;EDIT=l;
+  $('#f_label').value=a.label;$('#f_label').readOnly=true;$('#f_dp').value=a.dp_id;$('#f_u').value=a.username;$('#f_bank').value=a.bank_name;$('#f_k').value=a.kitta;
+  ['f_p','f_crn','f_pin'].forEach(i=>{$('#'+i).value='';$('#'+i).placeholder='Leave blank to keep current'});
+  $('#f_title').textContent='Edit account: '+l;$('#f_btn').textContent='Update account';$('#f_cancel').style.display='';$('#f_msg').textContent='Only retype what changed. Blank password, CRN or PIN keeps the saved value.';
+  $('#f_title').scrollIntoView({behavior:'smooth'})}
+async function save(){
+  const a={label:$('#f_label').value.trim(),dp_id:$('#f_dp').value.trim(),username:$('#f_u').value.trim(),password:$('#f_p').value,crn:$('#f_crn').value.trim(),pin:$('#f_pin').value,bank_name:$('#f_bank').value.trim(),kitta:+$('#f_k').value||10};
+  const msg=t=>{$('#f_msg').innerHTML='<span class="err">'+esc(t)+'</span>'};
+  if(!a.label||!a.dp_id||!a.username)return msg('Label, DP code and username are required.');
+  if(!EDIT&&(!a.password||!a.crn||!a.pin))return msg('Password, CRN and transaction PIN are required for a new account.');
+  if(!a.bank_name)return msg('Bank name is required.');
+  try{$('#f_msg').textContent='Saving…';await run('saveAccount',a);EDIT=null;VIEW=null;go()}catch(e){msg(e.message)}}
+async function testLogin(b){const l=b.dataset.l,o=$('#tl_'+l.replace(/[^a-zA-Z0-9]/g,'_'));o.textContent='Logging in…';
+  const r=await run('testLogin',l);o.innerHTML=r.ok?`<span class="ok">✓ Login OK ${esc(r.data.name)} ${esc(r.data.demat)}</span>`:`<span class="err">${esc(r.error)}</span>`}
+async function del(l){if(confirm('Remove '+l+'?')){await run('deleteAccount',l);go()}}
+async function alertsOn(){try{$('#al_msg').textContent='Enabling…';await run('enableAlerts',$('#al_e').value);go()}catch(e){$('#al_msg').innerHTML='<span class="err">'+esc(e.message)+'</span>'}}
+async function alertsOff(){await run('disableAlerts');go()}
+function login(msg){
+  CUR++;document.querySelectorAll('#bar button').forEach(b=>b.classList.remove('on'));
+  $('#m').innerHTML=`<div class="card" style="max-width:440px;margin:24px auto"><h3>Unlock IPO Hub</h3>
+  ${msg?`<p class="err">${esc(msg)}</p>`:''}
+  <p class="m">Enter the passcode you set in your Google Sheet (IPO Hub menu &rarr; Set / change app passcode).</p>
+  <input id="lg_p" type="password" placeholder="App passcode" style="width:100%" autocomplete="current-password">
+  <details style="margin:8px 0"><summary class="m">Advanced: Apps Script URL</summary><input id="lg_u" style="width:100%" value="${esc(API)}"></details>
+  <button class="s" style="width:100%;padding:12px" onclick="doLogin()">Unlock</button><div id="lg_msg" class="m" style="margin-top:8px"></div></div>`;
+  const p=$('#lg_p');p.focus();p.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})}
+async function doLogin(){
+  const p=$('#lg_p').value.trim(),u=$('#lg_u').value.trim()||DEFAULT_API;if(!p)return;
+  $('#lg_msg').textContent='Checking…';PASS=p;API=u;
+  try{await rpc('listAccounts',[]);LS.set('ipohub_pass',p);LS.set('ipohub_api',u);tab='ipo';go()}
+  catch(e){PASS='';$('#lg_msg').innerHTML='<span class="err">'+esc(e.message)+'</span>'}}
+function logout(){if(!confirm('Lock the app on this phone? You will need the passcode again.'))return;PASS='';LS.del('ipohub_pass');VIEW=null;login()}
+let DEFERRED=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFERRED=e;const b=$('#inst');if(b)b.style.display=''});
+async function install(){if(!DEFERRED)return;DEFERRED.prompt();await DEFERRED.userChoice;DEFERRED=null;$('#inst').style.display='none'}
+window.addEventListener('online',()=>$('#off').style.display='none');window.addEventListener('offline',()=>$('#off').style.display='');
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if(!navigator.onLine)$('#off').style.display='';
+go();
+</script></body></html>
