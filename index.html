@@ -7,15 +7,15 @@
 <meta name="theme-color" content="#0A2E66">
 <meta name="description" content="Apply for IPOs from all your MeroShare accounts, track allotment and your portfolio">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="IPO Hub">
-<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="archivo.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-@font-face{font-family:"Archivo";src:url(fonts/archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"Archivo";src:url(archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
 :root{
   --ink:#0A2E66;--blue:#0C4DA1;--red:#ED1B24;--green:#0F8A4F;--amber:#B45309;
   --bg:#EEF1F6;--surface:#FFFFFF;--line:#DCE2EC;--text:#13213A;--muted:#5E6B80;--faint:#E6EBF3;
@@ -262,7 +262,7 @@ const IC={
 
 /* ================= transport ================= */
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jIopyKCMBssCywzvqJbM0hGQ/exec';
-const APP_VERSION='2.0.3';
+const APP_VERSION='2.0.4';
 const CDSC_URL='https://iporesult.cdsc.com.np/';
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let API=LS.get('ipohub_api')||DEFAULT_API,PASS=LS.get('ipohub_pass')||'';
@@ -684,7 +684,7 @@ async function toggleAlerts(cb){
 /* ================= lock / login ================= */
 function login(msg){
   CUR++;
-  $('#root').innerHTML=`<div class="login"><div class="box"><img src="icons/icon-192.png" alt="">
+  $('#root').innerHTML=`<div class="login"><div class="box"><img src="icon-192.png" alt="">
    <h1>IPO Hub</h1><p>Enter the passcode you set in your Google Sheet, under IPO Hub, Set / change app passcode.</p>
    <input id="lg_p" type="password" placeholder="App passcode" autocomplete="current-password" aria-label="App passcode">
    <details><summary>Apps Script address</summary><input id="lg_u" value="${esc(API)}" aria-label="Apps Script URL"></details>

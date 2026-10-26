@@ -1,5 +1,4 @@
 # IPO Hub (phone app)
 
-Installable web app for the IPO Hub Google Apps Script backend.
-Files: index.html, manifest.json, sw.js, icons/. Upload all of them to the root of a GitHub Pages repo.
-When you change any file later, bump VERSION in sw.js so phones pick up the update.
+Upload ALL of these files to the top level of the GitHub repository (no folders):
+index.html, manifest.json, sw.js, icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png, archivo.woff2, font-license.txt, README.md
