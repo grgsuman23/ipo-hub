@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IPO Hub</title>
-<meta name="theme-color" content="#0C4DA1">
-<meta name="description" content="Multi-account MeroShare IPO apply, results and portfolio dashboard">
+<meta name="theme-color" content="#0A2E66">
+<meta name="description" content="Apply for IPOs from all your MeroShare accounts, track allotment and your portfolio">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -10,314 +13,701 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="IPO Hub">
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-:root{--r:#ED1B24;--b:#0C4DA1;--bg:#f6f7fb;--c:#fff;--t:#1b1f2a;--m:#6b7280}
-*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:var(--t)}
-header{background:var(--b);color:#fff;padding:12px 20px;border-bottom:4px solid var(--r)}header h1{font-size:18px;margin:0}
-#bar{display:flex;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}
-#bar button{background:#eef2fb;color:#0C4DA1;border:0;padding:9px 16px;cursor:pointer;font-size:14px;border-radius:6px;font-weight:600}
-#bar button.on{background:#0C4DA1;color:#fff}
-main{padding:16px;max-width:1150px;margin:auto}
-.card{background:var(--c);border-radius:10px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow-x:auto}
-h3{margin:0 0 10px;font-size:15px}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #e5e7eb;vertical-align:middle}th{color:var(--m);font-weight:600}
-.p{background:var(--r);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
-.s{background:var(--b);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
-.mini{background:#eef2fb;color:var(--b);border:0;padding:4px 9px;border-radius:5px;cursor:pointer;font-size:12px;text-decoration:none;display:inline-block;margin:1px}
-input{padding:7px;border:1px solid #cbd5e1;border-radius:6px;margin:3px}
-.err{color:var(--r)}.ok{color:#128a3e}.m{color:var(--m)}
-.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
-.g{background:#dcfce7;color:#166534}.r{background:#fee2e2;color:#b91c1c}.y{background:#fef3c7;color:#92400e}.n{background:#e5e7eb;color:#4b5563}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
-.kpi{background:var(--c);border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.kpi .v{font-size:28px;font-weight:700}.kpi .l{color:var(--m);font-size:12px}
-.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:#e5e7eb;min-width:120px}.bar i{display:block;height:100%}
-.up{color:#16a34a}.dn{color:#ED1B24}
-.warn{background:#fef3c7;color:#92400e;padding:10px 14px;border-radius:8px;margin-bottom:14px}
-.legend span{margin-right:14px;font-size:12px}.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
-
-.arow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #e5e7eb;cursor:pointer}
-.arow input{width:20px;height:20px;margin:0;accent-color:#0C4DA1}.arow .an{flex:1;font-weight:600}.arow.dis{opacity:.55;cursor:default}
-html{-webkit-text-size-adjust:100%}
-header{display:flex;align-items:center;gap:8px;padding-top:calc(12px + env(safe-area-inset-top))}
-header h1{flex:1}
-header .hb{background:rgba(255,255,255,.15);color:#fff;border:0;padding:7px 11px;border-radius:6px;font-size:13px;cursor:pointer}
-#bar{position:sticky;top:0;z-index:5;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-#bar::-webkit-scrollbar{display:none}
-#bar button{flex:0 0 auto}
-#off{background:#fef3c7;color:#92400e;text-align:center;padding:6px;font-size:13px}
-@media (max-width:640px){
- main{padding:10px}.card{padding:12px;border-radius:8px}
- th,td{padding:6px 6px;font-size:13px;white-space:nowrap}
- .kpis{grid-template-columns:repeat(2,1fr);gap:8px}.kpi .v{font-size:22px}
- input{font-size:16px}
+@font-face{font-family:"Archivo";src:url(fonts/archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+:root{
+  --ink:#0A2E66;--blue:#0C4DA1;--red:#ED1B24;--green:#0F8A4F;--amber:#B45309;
+  --bg:#EEF1F6;--surface:#FFFFFF;--line:#DCE2EC;--text:#13213A;--muted:#5E6B80;--faint:#E6EBF3;
+  --blue-t:#E3ECFA;--red-t:#FDE7E8;--green-t:#E1F4EA;--amber-t:#FDF0DC;
+  --hero-text:#FFFFFF;--hero-muted:#AFC3E6;
+  --r-group:14px;--r-sheet:22px;
+  --tabh:64px;
+  color-scheme:light;
 }
-</style></head><body>
-<header><h1>🇳🇵 IPO Hub <small style="font-weight:400;opacity:.7;font-size:11px">app 1.1</small></h1>
-<button class="hb" id="inst" style="display:none" onclick="install()">Install</button><button class="hb" onclick="logout()">Lock</button></header>
-<div id="off" style="display:none">You are offline. Data will load when you reconnect.</div>
-<div id="bar"><button data-t="ipo" onclick="sw('ipo')">Apply IPO</button><button data-t="res" onclick="sw('res')">Results</button><button data-t="dash" onclick="sw('dash')">Dashboard</button><button data-t="pf" onclick="sw('pf')">Portfolio</button><button data-t="acc" onclick="sw('acc')">Accounts</button></div>
-<main id="m"><p class="m">Loading…</p></main>
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#0A1A38;--blue:#6E9CF2;--red:#FF5C62;--green:#3FCF8A;--amber:#F2B45A;
+    --bg:#0B1424;--surface:#142038;--line:#22314F;--text:#E6ECF5;--muted:#8C9AB3;--faint:#1B2944;
+    --blue-t:#1C2E52;--red-t:#3A1C26;--green-t:#163528;--amber-t:#3A2C17;
+    --hero-muted:#8EA6D3;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.45;font-variation-settings:"wdth" 100;overscroll-behavior-y:contain}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 82}
+.up{color:var(--green)}.dn{color:var(--red)}.mu{color:var(--muted)}
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:calc(var(--tabh) + env(safe-area-inset-bottom) + 24px)}
+
+/* ---------- app bar ---------- */
+.appbar{background:var(--ink);color:var(--hero-text);padding:calc(env(safe-area-inset-top) + 10px) 16px 14px}
+.barrow{display:flex;align-items:center;gap:8px;min-height:40px}
+.barrow h1{flex:1;margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em}
+.ib{width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:inherit;display:grid;place-items:center}
+.ib:active{background:rgba(255,255,255,.12)}
+.ib svg{width:22px;height:22px}
+.ib.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sub{color:var(--hero-muted);font-size:13px;margin-top:2px}
+.offline{background:var(--amber-t);color:var(--amber);font-size:13px;padding:7px 16px;text-align:center}
+
+/* ---------- portfolio hero ---------- */
+.hero{margin-top:10px}
+.hero .v{font-size:40px;line-height:1.05;font-weight:700;font-variation-settings:"wdth" 72;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .v small{font-size:20px;font-weight:600;color:var(--hero-muted);margin-right:4px}
+.hero .chg{margin-top:6px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.hero .chg.up{color:#5FE3A1}.hero .chg.dn{color:#FF8A8E}
+.hero .meta{display:flex;gap:18px;margin-top:12px;font-size:13px;color:var(--hero-muted)}
+.hero .meta b{display:block;color:var(--hero-text);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 82}
+.hero .meta b.up{color:#5FE3A1}.hero .meta b.dn{color:#FF8A8E}
+.spark{display:block;width:100%;height:64px;margin-top:12px}
+.spark-l{display:flex;justify-content:space-between;font-size:11px;color:var(--hero-muted);font-variant-numeric:tabular-nums}
+
+/* ---------- layout ---------- */
+main{padding:14px 14px 0}
+.sec{font-size:13px;font-weight:600;color:var(--muted);margin:20px 4px 7px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec:first-child{margin-top:4px}
+.sec .lnk{border:0;background:none;color:var(--blue);font-size:13px;font-weight:600;padding:2px 4px}
+.group{background:var(--surface);border-radius:var(--r-group);overflow:hidden;border:1px solid var(--line)}
+@media (prefers-color-scheme:light){.group{border-color:transparent;box-shadow:0 0 0 1px var(--line)}}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:56px;position:relative;width:100%;text-align:left;border:0;background:none}
+.row+.row{border-top:1px solid var(--line)}
+button.row:active,label.row:active{background:var(--faint)}
+.row .main{flex:1;min-width:0}
+.row .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .end{text-align:right;flex-shrink:0}
+.row .end .t{font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 82}
+.row .chev{width:16px;height:16px;color:var(--muted);flex-shrink:0}
+.row.dis{opacity:.5}
+.ghead{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+.ghead h2{margin:0;font-size:17px;font-weight:700;line-height:1.25}
+.ghead .s{font-size:13px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.gfoot{padding:12px 14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* avatar */
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex-shrink:0;font-variation-settings:"wdth" 90}
+
+/* chips & pills */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:2px 14px 2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--text)}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+@media (prefers-color-scheme:dark){.chip[aria-pressed="true"]{color:#0B1424}}
+.chip .n{opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-g{background:var(--green-t);color:var(--green)}.p-r{background:var(--red-t);color:var(--red)}
+.p-a{background:var(--amber-t);color:var(--amber)}.p-b{background:var(--blue-t);color:var(--blue)}.p-n{background:var(--faint);color:var(--muted)}
+
+/* buttons */
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:700;font-size:15px;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.full{width:100%}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+@media (prefers-color-scheme:dark){.btn-blue{color:#0B1424}}
+.btn-soft{background:var(--blue-t);color:var(--blue)}
+.btn-plain{background:var(--faint);color:var(--text)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn svg{width:18px;height:18px}
+.sbtn{text-decoration:none;border:0;background:var(--blue-t);color:var(--blue);border-radius:9px;padding:6px 11px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.sbtn svg{width:15px;height:15px}
+
+/* check circle */
+.ck{appearance:none;-webkit-appearance:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);margin:0;flex-shrink:0;display:grid;place-items:center;background:var(--surface)}
+.ck:checked{background:var(--blue);border-color:var(--blue)}
+.ck:checked::after{content:"";width:10px;height:6px;border:2.5px solid #fff;border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg)}
+@media (prefers-color-scheme:dark){.ck:checked::after{border-color:#0B1424}}
+.ck:disabled{background:var(--faint)}
+
+/* stepper */
+.step{display:flex;align-items:center;background:var(--faint);border-radius:12px;overflow:hidden}
+.step button{border:0;background:none;width:42px;height:44px;font-size:20px;font-weight:600;color:var(--blue)}
+.step span{min-width:96px;text-align:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* inputs */
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:12px 13px;font-size:16px;outline:none}
+.field input:focus{border-color:var(--blue)}
+.field small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+
+/* switch */
+.sw{position:relative;width:50px;height:30px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw i{position:absolute;inset:0;background:var(--line);border-radius:99px;transition:background .2s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.sw input:checked+i{background:var(--green)}
+.sw input:checked+i::after{transform:translateX(20px)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr}
+.stat{padding:13px 14px}
+.stat:nth-child(odd){border-right:1px solid var(--line)}
+.stat:nth-child(n+3){border-top:1px solid var(--line)}
+.stat .v{font-size:24px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 78}
+.stat .l{font-size:13px;color:var(--muted);margin-top:2px}
+.sbar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--faint);margin-top:6px}
+.sbar i{display:block;height:100%}
+.donut-wrap{display:flex;align-items:center;gap:18px;padding:16px 14px}
+.legend{display:grid;gap:8px;font-size:14px;flex:1}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend b{font-variant-numeric:tabular-nums;margin-left:auto;font-weight:700}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* notices */
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-group);font-size:14px;margin-bottom:10px}
+.note svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+.note.warn{background:var(--amber-t);color:var(--amber)}
+.note.err{background:var(--red-t);color:var(--red)}
+.note.info{background:var(--blue-t);color:var(--blue)}
+.note .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.empty{text-align:center;padding:42px 20px;color:var(--muted)}
+.empty h3{color:var(--text);margin:0 0 6px;font-size:17px}
+.empty p{margin:0 0 16px}
+
+/* skeleton */
+.sk{background:var(--faint);border-radius:7px;height:12px;position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:sh 1.2s infinite}
+@media (prefers-color-scheme:dark){.sk::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}}
+@keyframes sh{to{transform:translateX(100%)}}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)}
+.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tabh)}
+.tab{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--blue)}
+.tab[aria-current="page"] .ico{background:var(--blue-t);border-radius:99px}
+.tab .ico{display:grid;place-items:center;width:56px;height:30px;transition:background .2s}
+
+/* pull to refresh */
+.ptr{height:0;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:13px;transition:height .2s}
+
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet-wrap[hidden]{display:none}
+.scrim{position:absolute;inset:0;background:rgba(6,14,30,.5);opacity:0;transition:opacity .22s}
+.sheet{position:relative;width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--bg);border-radius:var(--r-sheet) var(--r-sheet) 0 0;
+  padding:8px 16px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+.sheet-wrap.open .scrim{opacity:1}.sheet-wrap.open .sheet{transform:none}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 12px}
+.sheet h2{margin:0 0 4px;font-size:20px;font-weight:700}
+.sheet .lead{color:var(--muted);margin:0 0 14px;font-size:14px}
+.sheet .acts{display:flex;gap:10px;margin-top:16px}
+.sheet .acts .btn{flex:1}
+.sheet .serr{color:var(--red);font-size:14px;margin-top:10px;min-height:1px}
+.kv .row{min-height:46px;padding:10px 14px}
+.kv .row .k{flex:1;color:var(--muted);font-size:14px}
+.kv .row .val{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+
+/* toast */
+.toasts{position:fixed;left:0;right:0;bottom:calc(var(--tabh) + env(safe-area-inset-bottom) + 12px);z-index:60;display:grid;justify-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{background:#13213A;color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;font-weight:600;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,.25);
+  transform:translateY(12px);opacity:0;transition:all .22s}
+@media (prefers-color-scheme:dark){.toast{background:#E6ECF5;color:#0B1424}}
+.toast.show{transform:none;opacity:1}
+.toast.err{background:var(--red);color:#fff}
+
+/* login */
+.login{min-height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:calc(env(safe-area-inset-top) + 24px) 24px 40px}
+.login .box{max-width:400px;width:100%;margin:0 auto}
+.login img{width:64px;height:64px;border-radius:16px}
+.login h1{font-size:30px;margin:18px 0 6px;font-weight:700;font-variation-settings:"wdth" 88}
+.login p{color:var(--hero-muted);margin:0 0 24px}
+.login input{width:100%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:12px;padding:14px;font-size:17px;outline:none}
+.login input::placeholder{color:var(--hero-muted)}
+.login input:focus{border-color:#fff}
+.login details{margin:14px 0 18px;color:var(--hero-muted);font-size:13px}
+.login details input{font-size:13px;padding:10px;margin-top:8px}
+.login .msg{min-height:22px;margin-top:12px;font-size:14px;color:#FF8A8E}
+.login .btn-red{width:100%}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (min-width:600px){.app{padding-top:0}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="sheet-wrap" id="sheet" hidden><div class="scrim"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 <script>
-window.addEventListener('unhandledrejection',function(e){if(e.reason instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.reason.message);return}alert('Error: '+(e.reason&&e.reason.message||e.reason))});
-window.onerror=function(m){var e=document.getElementById('m');if(e)e.innerHTML='<p class="err">Script error: '+m+'</p>'};
-function sw(k){tab=k;go()}
-let tab='ipo',ACC=[],VIEW=null,VIEW_TS=0;
-const $=s=>document.querySelector(s);
-const CDSC_URL='https:'+String.fromCharCode(47,47)+'iporesult.cdsc.com.np/';
-let CUR=0;const READ=new Set(['listAccounts','getIssues','getPortfolio','getSettings','getHistory','getWacc']);
-const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jlopyKCMBssCywzvqJbM0hGQ/exec';
+/* ================= icons ================= */
+const I=(p,extra='')=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${p}</svg>`;
+const IC={
+  apply:I('<path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/>'),
+  results:I('<path d="M9 11l2.2 2.2L15.5 9"/><path d="M5 4h14v16l-3-2-2 2-2-2-2 2-2-2-3 2z"/>'),
+  stats:I('<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'),
+  portfolio:I('<path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/>'),
+  accounts:I('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.3 3.3 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/>'),
+  refresh:I('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>'),
+  chev:I('<path d="M9 6l6 6-6 6"/>'),
+  copy:I('<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+  ext:I('<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/>'),
+  plus:I('<path d="M12 5v14M5 12h14"/>'),
+  info:I('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+  warn:I('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>'),
+  lock:I('<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
+  download:I('<path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/>'),
+  sheet:I('<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 4v16"/>'),
+  camera:I('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>')
+};
+
+/* ================= transport ================= */
+const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jIopyKCMBssCywzvqJbM0hGQ/exec';
+const APP_VERSION='2.0.1';
+const CDSC_URL='https://iporesult.cdsc.com.np/';
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let API=LS.get('ipohub_api')||DEFAULT_API,PASS=LS.get('ipohub_pass')||'';
+if(/Hsg5_jlopyK/.test(API)){API=DEFAULT_API;LS.set('ipohub_api',API)}
 class AuthError extends Error{}
 async function rpc(fn,args){
   if(!navigator.onLine)throw new Error('You are offline. Connect to the internet and try again.');
   let r;
   try{r=await fetch(API,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pass:PASS,fn:fn,args:args})})}
-  catch(e){throw new Error('Could not reach your Apps Script. Check the deployment is set to "Anyone" and the URL is the /exec one.')}
+  catch(e){throw new Error('Could not reach your Apps Script. Check the deployment is set to "Anyone" and the URL ends in /exec.')}
   const t=await r.text();let j;
   try{j=JSON.parse(t)}catch(e){throw new Error('Apps Script did not return data (HTTP '+r.status+'). Most likely the deployment access is not "Anyone", or a new version was not deployed.')}
   if(!j.ok){if(/passcode/i.test(j.error||''))throw new AuthError(j.error);throw new Error(j.error||'Unknown error')}
   return j.data}
+let CUR=0;
+const READ=new Set(['listAccounts','getIssues','getPortfolio','getSettings','getHistory','getWacc']);
+/* read-only calls from a screen you already left are dropped, so a slow screen never overwrites the one you opened */
+const run=(fn,...a)=>{const gen=CUR;return new Promise((res,rej)=>rpc(fn,a).then(v=>{if(READ.has(fn)&&gen!==CUR)return;res(v)},e=>{if(READ.has(fn)&&gen!==CUR)return;rej(e)}))};
 const runNG=(fn,...a)=>rpc(fn,a);
-/* read-only calls from a tab you already left are dropped, so a slow tab can never overwrite the one you clicked */
-const run=(fn,...a)=>{const gen=CUR;return new Promise((res,rej)=>rpc(fn,a)
-  .then(v=>{if(READ.has(fn)&&gen!==CUR)return;res(v)},e=>{if(READ.has(fn)&&gen!==CUR)return;rej(e)}))};
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const fmt=n=>n==null||n===''?'–':Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
 const all=(fn,...a)=>Promise.all(ACC.map(async x=>({label:x.label,...await run(fn,x.label,...a)})));
-const errs=l=>l.filter(x=>!x.ok).map(x=>`<p class="err">${esc(x.label)}: ${esc(x.error)}</p>`).join('');
-const STAGE={verified:'<span class="pill g">Verified</span>',rejected:'<span class="pill r">Rejected</span>',submitted:'<span class="pill y">Awaiting verification</span>',cancelled:'<span class="pill n">Cancelled</span>'};
-const stg=r=>(STAGE[r.stage]||'')+(r.balance?' <span class="pill r">Bank balance</span>':'')+(r.stage=='rejected'&&r.remark?`<div class="m" style="font-size:12px">${esc(r.remark)}</div>`:'');
-const PILL={allotted:'<span class="pill g">Allotted</span>',not:'<span class="pill r">Not allotted</span>',pending:'<span class="pill y">Pending</span>',other:'<span class="pill n">Other</span>'};
+const allNG=(fn,...a)=>Promise.all(ACC.map(async x=>({label:x.label,...await runNG(fn,x.label,...a)})));
+const some=(labels,fn,...a)=>Promise.all(labels.map(async l=>({label:l,...await runNG(fn,l,...a)})));
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null||n===''||isNaN(+n)?'–':Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+const rs=n=>n==null?'–':'Rs '+fmt(n);
+const sg=n=>n==null?'–':(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
+const pc=n=>n==null||!isFinite(n)?'–':(n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'%';
+const cl=n=>n>0?'up':n<0?'dn':'mu';
+const vib=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const HUES=[[214,62],[262,45],[174,52],[24,70],[330,48],[140,40]];
+function av(label){let h=0;for(const c of String(label))h=(h*31+c.charCodeAt(0))>>>0;const [hu,sa]=HUES[h%HUES.length];
+  const ini=String(label).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  return `<span class="av" style="background:hsl(${hu} ${sa}% ${dark?24:92}%);color:hsl(${hu} ${sa}% ${dark?78:32}%)">${esc(ini)}</span>`}
+const sk=(w,h=12)=>`<div class="sk" style="width:${w};height:${h}px"></div>`;
+function skeleton(n=4){return `<div class="sec">${sk('30%')}</div><div class="group">${Array.from({length:n},()=>`<div class="row">${'<span class="av" style="background:var(--faint)"></span>'}<div class="main" style="display:grid;gap:7px">${sk('55%',13)}${sk('35%',10)}</div>${sk('18%',13)}</div>`).join('')}</div>`}
+function empty(title,text,btn,act){return `<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p>${btn?`<button class="btn btn-blue" onclick="${act}">${esc(btn)}</button>`:''}</div>`}
+function note(kind,html,acts=''){return `<div class="note ${kind}">${kind==='info'?IC.info:IC.warn}<div>${html}${acts?`<div class="acts">${acts}</div>`:''}</div></div>`}
+const accErrs=l=>l.filter(x=>!x.ok).map(x=>note('err',`<b>${esc(x.label)}</b>: ${esc(x.error)}`)).join('');
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}a.remove();return ok}}
+
+/* ================= toast & sheet ================= */
+function toast(msg,kind){const t=document.createElement('div');t.className='toast'+(kind==='err'?' err':'');t.textContent=msg;$('#toasts').appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},kind==='err'?4500:2600)}
+let SHEET=null;
+function sheet({title,lead,body='',actions=[{label:'Close'}]}){
+  return new Promise(resolve=>{
+    const w=$('#sheet');
+    $('#sheetBody').innerHTML=`${title?`<h2>${esc(title)}</h2>`:''}${lead?`<p class="lead">${lead}</p>`:''}${body}<div class="serr" id="serr"></div>
+      ${actions.length?`<div class="acts">${actions.map((a,i)=>`<button class="btn ${a.kind||'btn-plain'}" data-i="${i}">${a.label}</button>`).join('')}</div>`:''}`;
+    w.hidden=false;requestAnimationFrame(()=>w.classList.add('open'));
+    const close=v=>{w.classList.remove('open');SHEET=null;setTimeout(()=>{if(!SHEET)w.hidden=true},260);resolve(v)};
+    SHEET={close};
+    w.querySelector('.scrim').onclick=()=>close(null);
+    $('#sheetBody').querySelectorAll('.acts button[data-i]').forEach(b=>b.onclick=async()=>{
+      const a=actions[+b.dataset.i];
+      if(a.fn){const lbl=b.innerHTML;b.disabled=true;b.textContent=a.busy||'Working…';$('#serr').textContent='';
+        try{const v=await a.fn();if(v===undefined){b.disabled=false;b.innerHTML=lbl;return}close(v)}
+        catch(e){b.disabled=false;b.innerHTML=lbl;$('#serr').textContent=e.message}}
+      else close(a.value===undefined?null:a.value)});
+    const f=$('#sheetBody').querySelector('input:not([type=checkbox])');if(f)setTimeout(()=>f.focus(),280);
+  })}
+const sheetErr=m=>{$('#serr').textContent=m};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&SHEET)SHEET.close(null)});
+
+/* ================= app state ================= */
+const TABS=[['ipo','Apply',IC.apply],['res','Results',IC.results],['dash','Stats',IC.stats],['pf','Portfolio',IC.portfolio],['acc','Accounts',IC.accounts]];
+let TAB=LS.get('ipohub_tab')||'ipo';if(!TABS.some(t=>t[0]===TAB))TAB='ipo';
+let ACC=[],ACC_T=0,FACC=LS.get('ipohub_facc')||'all';
+const CACHE={};
+let VIEW=null,VIEW_T=0,VIEW_P=null,BUSY=false;
+let DEFERRED=null;
+
+function shell(){
+  $('#root').innerHTML=`<div class="app">
+   <header class="appbar"><div class="barrow"><h1 id="title"></h1>
+     <button class="ib" id="rf" aria-label="Refresh" onclick="refresh()">${IC.refresh}</button></div>
+     <div id="sub" class="sub"></div><div id="hero"></div></header>
+   <div class="offline" id="off" ${navigator.onLine?'hidden':''}>You are offline. Pull down to refresh once you reconnect.</div>
+   <div class="ptr" id="ptr"></div>
+   <main id="m"></main></div>
+   <nav class="tabs" aria-label="Main"><div class="in">${TABS.map(([k,l,ic])=>`<button class="tab" data-t="${k}" onclick="sw('${k}')"><span class="ico">${ic}</span>${l}</button>`).join('')}</div></nav>`;
+}
+function setBar(title,sub,hero){$('#title').textContent=title;$('#sub').innerHTML=sub||'';$('#hero').innerHTML=hero||''}
+function sw(k){if(k===TAB){window.scrollTo({top:0,behavior:'smooth'});return}TAB=k;LS.set('ipohub_tab',k);window.scrollTo(0,0);go()}
+function spin(on){const b=$('#rf');if(b)b.classList.toggle('spin',on)}
+async function refresh(){if(TAB==='res'||TAB==='dash'){VIEW=null;VIEW_P=null}delete CACHE[TAB];ACC_T=0;await go()}
 
 async function go(){
-  CUR++;
+  CUR++;const my=CUR;
   if(!PASS){login();return}
-  document.querySelectorAll('#bar button').forEach(b=>b.classList.toggle('on',b.dataset.t==tab));
-  $('#m').innerHTML='<p class="m">Loading… logging into each account. Results/Dashboard can take 10–30 seconds the first time. You can switch tabs meanwhile.</p>';
-  try{ACC=await run('listAccounts');await({ipo,res,dash,pf,acc}[tab])()}catch(e){if(e instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.message);return}$('#m').innerHTML=`<div class="card"><p class="err">${esc(e.message)}</p><button class="s" onclick="go()">Try again</button></div>`}}
+  if(!$('#m'))shell();
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',b.dataset.t===TAB?'page':'false'));
+  const T=TABS.find(t=>t[0]===TAB);setBar(T[0]==='ipo'?'Apply IPO':T[1],'','');
+  const hasCache=(TAB==='res'||TAB==='dash')?VIEW:CACHE[TAB];
+  if(!hasCache)$('#m').innerHTML=TAB==='pf'?`<div style="height:6px"></div>${skeleton(5)}`:skeleton(4);
+  spin(true);
+  try{
+    if(!ACC_T||Date.now()-ACC_T>300000){ACC=await run('listAccounts');ACC_T=Date.now()}
+    if(my!==CUR)return;
+    if(FACC!=='all'&&!ACC.some(a=>a.label===FACC))FACC='all';
+    await ({ipo:scrApply,res:scrResults,dash:scrStats,pf:scrPortfolio,acc:scrAccounts}[TAB])(my);
+  }catch(e){
+    if(my!==CUR)return;
+    if(e instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.message);return}
+    $('#m').innerHTML=note('err',esc(e.message),`<button class="sbtn" onclick="refresh()">${IC.refresh}Try again</button>`);
+  }finally{if(my===CUR)spin(false)}}
+window.addEventListener('unhandledrejection',e=>{if(e.reason instanceof AuthError){PASS='';LS.del('ipohub_pass');login(e.reason.message);return}toast(String(e.reason&&e.reason.message||e.reason),'err')});
 
-/* ---------- Apply IPO ---------- */
-const some=(labels,fn,...a)=>Promise.all(labels.map(async l=>({label:l,...await run(fn,l,...a)})));
-const ACT={apply:'<span class="pill y">Not applied</span>',inProcess:'<span class="pill g">Applied</span>',edit:'<span class="pill g">Applied</span>',reapply:'<span class="pill r">Can reapply</span>'};
-let ISSUES={};
-async function ipo(){
-  if(!ACC.length){$('#m').innerHTML='<div class="card">Add an account first (Accounts tab).</div>';return}
-  const my=CUR,r=await all('getIssues');if(my!==CUR)return;ISSUES={};
+/* account filter chips (Results + Portfolio) */
+function accChips(){if(ACC.length<2)return '';
+  return `<div class="chips" role="group" aria-label="Account">${[['all','All accounts']].concat(ACC.map(a=>[a.label,a.label])).map(([k,l])=>`<button class="chip" aria-pressed="${FACC===k}" data-k="${esc(k)}" onclick="setFacc(this.dataset.k)">${esc(l)}</button>`).join('')}</div>`}
+function setFacc(k){FACC=k;LS.set('ipohub_facc',k);({res:renderResults,pf:renderPf}[TAB]||(()=>{}))()}
+
+/* ================= Apply ================= */
+const ACT={apply:['Not applied','p-a'],inProcess:['Applied','p-g'],edit:['Applied','p-g'],reapply:['Can reapply','p-r']};
+let ISSUES={};const KT={};
+function closesIn(s){const d=Date.parse(s);if(isNaN(d))return s?['Closes '+s,'p-n']:null;
+  const days=Math.ceil((new Date(d).setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/864e5);
+  if(days<0)return['Closed','p-n'];if(days===0)return['Closes today','p-r'];if(days===1)return['Closes tomorrow','p-a'];return['Closes in '+days+' days','p-b']}
+async function scrApply(my){
+  if(!ACC.length){setBar('Apply IPO');$('#m').innerHTML=empty('Add your first account','Save a MeroShare account and every open IPO for it shows up here.','Add account',"sw('acc')");return}
+  let d=CACHE.ipo;
+  if(d)renderApply();
+  if(!d||Date.now()-d.t>60000){const r=await all('getIssues');if(my!==CUR)return;CACHE.ipo={r,t:Date.now()};renderApply()}}
+function renderApply(){
+  const r=CACHE.ipo.r;ISSUES={};
   r.filter(x=>x.ok).forEach(x=>x.data.forEach(i=>{const m=ISSUES[i.companyShareId]=ISSUES[i.companyShareId]||{id:i.companyShareId,company:i.companyName,scrip:i.scrip,type:i.shareTypeName,group:i.shareGroupName,closes:i.issueCloseDate,acc:{}};m.acc[x.label]=i.action}));
-  const l=Object.values(ISSUES);
-  $('#m').innerHTML=errs(r)+(l.length?l.map(i=>{
-    const rows=ACC.map(a=>{const act=i.acc[a.label],can=act==='apply';
-      return `<label class="arow${can?'':' dis'}"><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'checked':'disabled'} onchange="cnt(${i.id})">
-      <span class="an">${esc(a.label)}</span><span class="m" style="font-size:12px">${esc(a.kitta||10)} kitta</span>${act?(ACT[act]||'<span class="pill n">'+esc(act)+'</span>'):'<span class="pill n">Not eligible</span>'}</label>`}).join('');
-    return `<div class="card" id="iss_${i.id}"><h3>${esc(i.company)} <span class="m">${esc(i.scrip)}</span></h3>
-    <div class="m" style="font-size:12px;margin:-4px 0 8px">${esc(i.type)} ${esc(i.group||'')} · closes ${esc(i.closes)}</div>
-    <div style="display:flex;gap:6px;margin-bottom:6px"><button class="mini" onclick="selAll(${i.id},true)">Select all</button><button class="mini" onclick="selAll(${i.id},false)">Select none</button></div>
-    ${rows}
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
-    <label class="m" style="font-size:13px">Kitta <input type="number" min="10" step="10" id="kt_${i.id}" placeholder="Default" style="width:110px"></label>
-    <button class="p" id="ab_${i.id}" onclick="applySel(${i.id})" style="padding:10px 16px">Apply</button></div>
-    <div id="out_${i.id}"></div></div>`}).join(''):'<div class="card m">No open IPOs right now.</div>');
-  l.forEach(i=>cnt(i.id))}
+  const l=Object.values(ISSUES),pend=l.reduce((s,i)=>s+Object.values(i.acc).filter(a=>a==='apply').length,0);
+  setBar('Apply IPO',l.length?`${plural(l.length,'issue')} open${pend?`, ${plural(pend,'account')} still to apply`:', all accounts applied'}`:'No issues open right now');
+  $('#m').innerHTML=accErrs(r)+(l.length?l.map(i=>{
+    const c=closesIn(i.closes);
+    const rows=ACC.map(a=>{const act=i.acc[a.label],can=act==='apply',st=act?(ACT[act]||[act,'p-n']):['Not eligible','p-n'];
+      return `<label class="row${can?'':' dis'}">${av(a.label)}<div class="main"><div class="t">${esc(a.label)}</div><div class="s">${esc(a.kitta||10)} kitta by default</div></div>
+      <span class="pill ${st[1]}">${esc(st[0])}</span><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'checked':'disabled'} onchange="cnt(${i.id})" aria-label="Apply from ${esc(a.label)}"></label>`}).join('');
+    const anyCan=Object.values(i.acc).includes('apply');
+    return `<div class="group" style="margin-bottom:14px"><div class="ghead"><h2>${esc(i.company)}</h2>
+      <div class="s"><span>${esc(i.scrip)}</span><span>${esc([i.type,i.group].filter(Boolean).join(', '))}</span>${c?`<span class="pill ${c[1]}">${esc(c[0])}</span>`:''}</div></div>
+      ${anyCan?`<div class="row" style="min-height:44px;padding:8px 14px"><div class="main s" id="sel_${i.id}"></div><button class="sbtn" onclick="selAll(${i.id})" id="sa_${i.id}">Select all</button></div>`:''}
+      ${rows}
+      ${anyCan?`<div class="gfoot"><div class="step" role="group" aria-label="Kitta"><button onclick="kstep(${i.id},-10)" aria-label="Less">−</button><span id="kv_${i.id}"></span><button onclick="kstep(${i.id},10)" aria-label="More">+</button></div>
+      <button class="btn btn-red" style="flex:1" id="ab_${i.id}" onclick="applySel(${i.id})"></button></div>`:''}</div>`}).join('')
+    :empty('No IPOs open right now','When a new issue opens for any of your accounts, it appears here.'));
+  l.forEach(i=>{kshow(i.id);cnt(i.id)})}
 const picked=id=>[...document.querySelectorAll(`.ck[data-i="${id}"]:checked`)].map(c=>c.value);
-function cnt(id){const n=picked(id).length,b=$('#ab_'+id);if(!b)return;b.disabled=!n;b.style.opacity=n?1:.5;
-  const tot=ACC.filter(a=>ISSUES[id]&&ISSUES[id].acc[a.label]==='apply').length;
-  b.textContent=!n?'Select an account':n===tot&&tot>1?`Apply from all ${n} accounts`:`Apply from ${n} selected account${n>1?'s':''}`}
-function selAll(id,on){document.querySelectorAll(`.ck[data-i="${id}"]:not(:disabled)`).forEach(c=>c.checked=on);cnt(id)}
+const canList=id=>ACC.filter(a=>ISSUES[id]&&ISSUES[id].acc[a.label]==='apply').map(a=>a.label);
+function cnt(id){const b=$('#ab_'+id);if(!b)return;const n=picked(id).length,tot=canList(id).length;
+  b.disabled=!n;b.textContent=!n?'Select an account':n===tot&&tot>1?`Apply from all ${n}`:`Apply from ${n}`;
+  $('#sel_'+id).textContent=`${n} of ${tot} selected`;$('#sa_'+id).textContent=n===tot?'Select none':'Select all'}
+function selAll(id){const on=picked(id).length!==canList(id).length;document.querySelectorAll(`.ck[data-i="${id}"]:not(:disabled)`).forEach(c=>c.checked=on);cnt(id)}
+function kshow(id){const e=$('#kv_'+id);if(e)e.textContent=KT[id]?KT[id]+' kitta':'Default kitta'}
+function kstep(id,d){let v=(KT[id]||0)+d;if(v<10)v=null;KT[id]=v;kshow(id)}
 async function applySel(id){
   const labels=picked(id),i=ISSUES[id];if(!labels.length)return;
-  const kv=$('#kt_'+id).value.trim(),k=kv?parseInt(kv,10):null;
-  if(kv&&(!(k>=10)||k%10)){alert('Kitta must be 10 or more, in multiples of 10.');return}
-  const b=$('#ab_'+id),o=$('#out_'+id);b.disabled=true;b.textContent='Checking (dry run)…';
+  const k=KT[id]||null,b=$('#ab_'+id);b.disabled=true;b.textContent='Checking…';
   try{
-    const dry=await some(labels,'applyIssue',id,k,true);show(dry,'Dry run (nothing submitted)',o);
+    const dry=await some(labels,'applyIssue',id,k,true);
     const ok=dry.filter(x=>x.ok&&x.data.status==='dry-run').map(x=>x.label);
-    if(!ok.length){alert('None of the selected accounts can apply. See the dry run result.');return}
-    if(!confirm(`Apply for "${i.company}" from ${ok.length} account(s):\n\n${ok.join('\n')}\n\nKitta: ${k||'each account\'s default'}\nThis blocks money in each ASBA bank account.`))return;
-    b.textContent='Submitting…';show(await some(ok,'applyIssue',id,k,false),'Submitted',o);
-  }finally{cnt(id)}}
-function show(r,t,el){(el||$('#out')).innerHTML=`<div class="card"><h3>${t}</h3><table>${r.map(x=>`<tr><td>${esc(x.label)}</td>
-  <td class="${x.ok&&x.data.status!='skipped'?'ok':'err'}">${x.ok?esc(x.data.status)+' – '+esc(x.data.detail):esc(x.error)}</td></tr>`).join('')}</table></div>`}
+    const list=`<div class="group">${dry.map(x=>{const good=x.ok&&x.data.status==='dry-run';
+      return `<div class="row">${av(x.label)}<div class="main"><div class="t">${esc(x.label)}</div><div class="s" style="white-space:normal">${esc(x.ok?x.data.detail:x.error)}</div></div><span class="pill ${good?'p-g':'p-r'}">${good?'Ready':'Skipped'}</span></div>`}).join('')}</div>`;
+    if(!ok.length){await sheet({title:'Nothing to apply',lead:'None of the selected accounts can apply for this issue.',body:list});return}
+    const yes=await sheet({title:`Apply for ${i.company}?`,lead:`${plural(ok.length,'account')}, ${k?k+' kitta each':'each account’s default kitta'}. The amount is blocked in each account’s ASBA bank account.`,
+      body:list,actions:[{label:'Cancel'},{label:`Apply from ${ok.length}`,kind:'btn-red',value:true}]});
+    if(!yes)return;
+    b.textContent='Applying…';
+    const res=await some(ok,'applyIssue',id,k,false);
+    const done=res.filter(x=>x.ok&&x.data.status==='applied');
+    vib(done.length?[12,40,12]:60);
+    delete CACHE.ipo;VIEW=null;
+    toast(done.length===ok.length?`Applied from ${plural(done.length,'account')}`:`Applied from ${done.length} of ${ok.length}. Check the details.`,done.length===ok.length?'':'err');
+    if(done.length!==ok.length)await sheet({title:'Application results',body:`<div class="group">${res.map(x=>{const g=x.ok&&x.data.status==='applied';return `<div class="row">${av(x.label)}<div class="main"><div class="t">${esc(x.label)}</div><div class="s" style="white-space:normal">${esc(x.ok?x.data.detail:x.error)}</div></div><span class="pill ${g?'p-g':'p-r'}">${g?'Applied':'Failed'}</span></div>`}).join('')}</div>`});
+    go();
+  }finally{if($('#ab_'+id))cnt(id)}}
 
-/* ---------- shared result data ---------- */
-let VIEW_P=null;
-const allNG=(fn,...a)=>Promise.all(ACC.map(async x=>({label:x.label,...await runNG(fn,x.label,...a)})));
+/* ================= shared result data ================= */
 function loadView(force){
-  if(!force&&VIEW&&Date.now()-VIEW_TS<120000)return Promise.resolve(VIEW);
-  if(!force&&VIEW_P)return VIEW_P;                       /* Results and Dashboard share one in-flight load */
-  const p=VIEW_P=(async()=>{const per=await allNG('getResults');const v=await runNG('buildView',per);VIEW=v;VIEW_TS=Date.now();return v})();
+  if(!force&&VIEW&&Date.now()-VIEW_T<120000)return Promise.resolve(VIEW);
+  if(!force&&VIEW_P)return VIEW_P;
+  const p=VIEW_P=(async()=>{const per=await allNG('getResults');const v=await runNG('buildView',per);VIEW=v;VIEW_T=Date.now();return v})();
   p.then(()=>{if(VIEW_P===p)VIEW_P=null},()=>{if(VIEW_P===p)VIEW_P=null});
   return p}
-async function refresh(){VIEW=null;VIEW_P=null;go()}
-const bar=(a,n,p)=>{const t=a+n+p||1;return `<div class="bar"><i style="width:${a/t*100}%;background:#16a34a"></i><i style="width:${n/t*100}%;background:#ED1B24"></i><i style="width:${p/t*100}%;background:#9ca3af"></i></div>`};
-const LEGEND='<div class="legend"><span><b style="background:#16a34a"></b>Allotted</span><span><b style="background:#ED1B24"></b>Not allotted</span><span><b style="background:#9ca3af"></b>Pending</span></div>';
-const notes=v=>errs(v.errors.map(e=>({...e,ok:false})))+(v.pubError?'<p class="m">ℹ CDSC result list is unavailable (their site rejects Google servers), so "Result out" badges are off. Verified / Allotted / Not allotted still come from MeroShare. To check CDSC first, use Open CDSC, Copy BOID and Mark result on a pending row.</p>':'');
+const RES_PILL={allotted:['Allotted','p-g'],not:['Not allotted','p-r'],pending:['Pending','p-a'],other:['Other','p-n']};
+const STAGE={verified:'Verified',rejected:'Rejected',submitted:'Awaiting verification',cancelled:'Cancelled'};
+const bucket=r=>r.stage==='rejected'?'rejected':r.cls==='other'?'other':r.cls;
 
-/* ---------- Results: company-wise ---------- */
-async function res(){
-  const my=CUR,v=await loadView();if(my!==CUR)return;
-  $('#m').innerHTML=`<div class="card"><button class="s" onclick="refresh()">↻ Refresh</button>
-   <span class="m"> Result availability is read from iporesult.cdsc.com.np; your allotted / not-allotted status comes from MeroShare, or from what you mark below.</span></div>${notes(v)}`+
-  (v.companies.length?v.companies.map(c=>`<div class="card"><h3>${esc(c.name)} <span class="m">${esc(c.scrip)}</span>
-   ${v.pubError?'<span class="pill n">CDSC status unavailable</span>':c.published?'<span class="pill g">Result out on CDSC</span>':'<span class="pill n">Result not on CDSC yet</span>'}</h3>
-   <table><tr><th>Account</th><th>Application</th><th>Result</th><th>Applied</th><th>Received</th><th></th></tr>
-   ${c.rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${stg(r)}</td><td>${r.stage=='rejected'?'<span class="m">–</span>':PILL[r.cls]+' <span class="m">'+esc(r.status)+'</span>'}</td><td>${fmt(r.applied)}</td><td>${fmt(r.received)}</td><td>
-   ${r.cls=='pending'&&(c.published||v.pubError)?`<a class="mini" target="_blank" rel="noopener" href="${CDSC_URL}">Open CDSC</a><button class="mini" data-boid="${esc(r.boid)}" onclick="copyBoid(this)">Copy BOID</button><button class="mini" data-k="${esc(c.key)}" data-l="${esc(r.label)}" onclick="mark(this)">Mark result</button>`:''}
-   ${r.src=='Manual'?`<button class="mini" data-k="${esc(c.key)}" data-l="${esc(r.label)}" onclick="unmark(this)">Undo</button>`:''}</td></tr>`).join('')}</table></div>`).join(''):'<div class="card m">No applications found yet.</div>')}
-function copyBoid(b){const t=document.createElement('textarea');t.value=b.dataset.boid;document.body.appendChild(t);t.select();
-  try{document.execCommand('copy');b.textContent='Copied ✓'}catch(e){prompt('BOID',b.dataset.boid)}t.remove()}
-async function mark(b){const q=prompt('Result from CDSC: enter allotted kitta (0 if NOT allotted)');if(q===null||q.trim()===''||isNaN(+q))return;
-  await run('markResult',b.dataset.k,b.dataset.l,+q>0?'allotted':'not',+q);VIEW=null;go()}
-async function unmark(b){await run('markResult',b.dataset.k,b.dataset.l,null,0);VIEW=null;go()}
+/* ================= Results ================= */
+let RF='all';
+async function scrResults(my){
+  if(!ACC.length){$('#m').innerHTML=empty('No accounts yet','Add a MeroShare account to see its IPO results.','Add account',"sw('acc')");return}
+  if(VIEW)renderResults();
+  if(!VIEW||Date.now()-VIEW_T>120000){await loadView();if(my!==CUR)return;renderResults()}}
+function renderResults(){
+  const v=VIEW;if(!v||TAB!=='res')return;
+  const comps=v.companies.map(c=>({...c,rows:c.rows.filter(r=>FACC==='all'||r.label===FACC)})).filter(c=>c.rows.length);
+  const allRows=comps.flatMap(c=>c.rows),n=k=>allRows.filter(r=>bucket(r)===k).length;
+  const al=n('allotted'),nt=n('not');
+  setBar('Results',allRows.length?`${al} allotted, ${nt} not allotted, ${n('pending')} pending`:'');
+  const F=[['all','All',allRows.length],['pending','Pending',n('pending')],['allotted','Allotted',al],['not','Not allotted',nt],['rejected','Rejected',n('rejected')]];
+  const shown=comps.map(c=>({...c,rows:c.rows.filter(r=>RF==='all'||bucket(r)===RF)})).filter(c=>c.rows.length);
+  $('#m').innerHTML=accChips()+`<div class="chips" style="margin-top:10px" role="group" aria-label="Filter">${F.map(([k,l,c])=>`<button class="chip" aria-pressed="${RF===k}" onclick="RF='${k}';renderResults()">${l}<span class="n">${c}</span></button>`).join('')}</div>`+
+   `<div style="height:10px"></div>`+accErrs(v.errors.map(e=>({...e,ok:false})))+
+   (v.pubError?note('info','CDSC’s result site doesn’t accept requests from Google, so results come from MeroShare. If CDSC publishes first, open a pending row to check it there and record the result.'):'')+
+   (shown.length?shown.map(c=>`<div class="sec"><span>${esc(c.name)}</span>${v.pubError?'':c.published?'<span class="pill p-g">Result out</span>':'<span class="pill p-n">Not out yet</span>'}</div>
+     <div class="group">${c.rows.map(r=>{const p=r.stage==='rejected'?['Rejected','p-r']:RES_PILL[r.cls]||RES_PILL.other;
+      const subl=r.stage==='rejected'?(r.balance?'Insufficient bank balance':r.remark||'Rejected by bank'):STAGE[r.stage]+(r.src==='Manual'?', marked by you':'');
+      return `<button class="row" data-k="${esc(c.key)}" data-l="${esc(r.label)}" onclick="resSheet(this.dataset.k,this.dataset.l)">${av(r.label)}<div class="main"><div class="t">${esc(r.label)}</div><div class="s">${esc(subl)}</div></div>
+       <div class="end"><span class="pill ${p[1]}">${p[0]}</span>${r.cls==='allotted'?`<div class="s num up" style="margin-top:3px">${fmt(r.received)} kitta</div>`:''}</div>${IC.chev.replace('<svg','<svg class="chev"')}</button>`}).join('')}</div>`).join('')
+    :empty(v.companies.length?'Nothing matches this filter':'No applications yet',v.companies.length?'Try another filter or account.':'IPOs you apply for show up here with their allotment result.'))}
+async function resSheet(key,label){
+  const c=VIEW.companies.find(x=>x.key===key),r=c&&c.rows.find(x=>x.label===label);if(!r)return;
+  const p=r.stage==='rejected'?['Rejected','p-r']:RES_PILL[r.cls]||RES_PILL.other;
+  const kv=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="val">${v}</span></div>`;
+  const pending=r.cls==='pending'&&r.stage!=='rejected';
+  const acts=[];
+  if(pending)acts.push({label:'Record result',kind:'btn-blue',value:'mark'});
+  if(r.src==='Manual')acts.push({label:'Undo my entry',kind:'btn-plain',value:'undo'});
+  acts.push({label:'Close'});
+  const v=await sheet({title:c.name,lead:esc(label),
+    body:`<div class="group kv">${kv('Application',esc(STAGE[r.stage]||r.stage))}${kv('Result',`<span class="pill ${p[1]}">${p[0]}</span>`)}${kv('Applied',fmt(r.applied)+' kitta')}${kv('Received',fmt(r.received)+' kitta')}
+     ${r.remark?kv('Remark',`<span style="font-weight:500;white-space:normal">${esc(r.remark)}</span>`):''}${kv('Source',r.src==='Manual'?'Entered by you':'MeroShare')}
+     ${kv('BOID',`<button class="sbtn" data-b="${esc(r.boid)}" onclick="copyText(this.dataset.b).then(ok=>{this.innerHTML=ok?'Copied':'${esc(r.boid)}'})">${IC.copy}Copy</button>`)}</div>
+     ${pending?`<div style="margin-top:12px"><a class="sbtn" href="${CDSC_URL}" target="_blank" rel="noopener">${IC.ext}Check on CDSC</a></div>`:''}`,
+    actions:acts});
+  if(v==='undo'){await runNG('markResult',key,label,null,0);VIEW=null;toast('Entry removed');go()}
+  if(v==='mark')markSheet(key,label,c.name)}
+async function markSheet(key,label,name){
+  const v=await sheet({title:'Record result',lead:`${esc(name)}, ${esc(label)}`,
+    body:`<label class="field"><span>Allotted kitta</span><input id="mk" type="number" inputmode="numeric" min="0" placeholder="0 if not allotted"><small>Enter 0 if you were not allotted any shares.</small></label>`,
+    actions:[{label:'Cancel'},{label:'Save result',kind:'btn-blue',busy:'Saving…',fn:async()=>{const q=$('#mk').value.trim();if(q===''||isNaN(+q)||+q<0){sheetErr('Enter a number, or 0 if not allotted.');return}
+      await runNG('markResult',key,label,+q>0?'allotted':'not',+q);return +q}}]});
+  if(v!==null&&v!==undefined){VIEW=null;toast(v>0?`Saved: ${v} kitta allotted`:'Saved: not allotted');go()}}
 
-/* ---------- Dashboard ---------- */
-async function dash(){
-  const my=CUR,v=await loadView();if(my!==CUR)return;const t=v.totals,decided=t.allotted+t.not,rate=decided?Math.round(t.allotted/decided*100):0;
-  const kp=(l,val,c)=>`<div class="kpi"><div class="v" style="color:${c}">${val}</div><div class="l">${l}</div></div>`;
-  $('#m').innerHTML=notes(v)+`<div class="card"><button class="s" onclick="refresh()">↻ Refresh</button></div>
-  <div class="kpis">${kp('Applications',t.applied,'#0C4DA1')}${kp('Allotted',t.allotted,'#16a34a')}${kp('Not allotted',t.not,'#ED1B24')}${kp('Pending',t.pending,'#6b7280')}${kp('Allotment rate',rate+'%','#0C4DA1')}${kp('Kitta allotted',fmt(t.kitta),'#16a34a')}</div>
-  <div class="kpis">${kp('Verified',t.verified,'#16a34a')}${kp('Rejected',t.rejected,'#ED1B24')}${kp('Rejected: bank balance',t.balance,'#ED1B24')}${kp('Awaiting verification',t.submitted,'#92400e')}</div>
-  <div class="card"><h3>Overall</h3>${bar(t.allotted,t.not,t.pending)}<br>${LEGEND}</div>
-  <div class="card"><h3>By account</h3><table><tr><th>Account</th><th>Applied</th><th>Verified</th><th>Rejected</th><th>Allotted</th><th>Not allotted</th><th>Pending</th><th>Kitta</th><th style="width:30%"></th></tr>
-  ${Object.entries(v.accounts).map(([k,a])=>`<tr><td>${esc(k)}</td><td>${a.applied}</td><td class="ok">${a.verified}</td><td class="err">${a.rejected}${a.balance?' ('+a.balance+' bank balance)':''}</td><td class="ok">${a.allotted}</td><td class="err">${a.not}</td><td>${a.pending}</td><td>${fmt(a.kitta)}</td><td>${bar(a.allotted,a.not,a.pending)}</td></tr>`).join('')}</table></div>
-  <div class="card"><h3>By company</h3><table><tr><th>Company</th><th>CDSC</th><th>Applied</th><th>Rejected</th><th>Allotted</th><th>Not</th><th>Pending</th><th style="width:25%"></th></tr>
-  ${v.companies.map(c=>{const n=k=>c.rows.filter(r=>r.cls==k).length,a=n('allotted'),x=n('not'),p=n('pending');
-   return `<tr><td><b>${esc(c.name)}</b> <span class="m">${esc(c.scrip)}</span></td><td>${v.pubError?'–':c.published?'<span class="pill g">out</span>':'<span class="pill n">no</span>'}</td><td>${c.rows.length}</td><td class="err">${c.rows.filter(r=>r.stage=='rejected').length}</td><td class="ok">${a}</td><td class="err">${x}</td><td>${p}</td><td>${bar(a,x,p)}</td></tr>`}).join('')}</table></div>`}
+/* ================= Stats ================= */
+async function scrStats(my){
+  if(!ACC.length){$('#m').innerHTML=empty('No accounts yet','Add a MeroShare account to see your allotment stats.','Add account',"sw('acc')");return}
+  if(VIEW)renderStats();
+  if(!VIEW||Date.now()-VIEW_T>120000){await loadView();if(my!==CUR)return;renderStats()}}
+function donut(a,n,p){const t=a+n+p,R=42,C=2*Math.PI*R;let off=0;
+  const seg=(v,col)=>{if(!v)return '';const len=v/t*C,s=`<circle r="${R}" cx="55" cy="55" fill="none" stroke="${col}" stroke-width="14" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 55 55)"/>`;off+=len;return s};
+  const rate=a+n?Math.round(a/(a+n)*100):0;
+  return `<svg viewBox="0 0 110 110" width="128" height="128" role="img" aria-label="Allotment ${rate}%"><circle r="${R}" cx="55" cy="55" fill="none" stroke="var(--faint)" stroke-width="14"/>${t?seg(a,'var(--green)')+seg(n,'var(--red)')+seg(p,'var(--amber)'):''}
+   <text x="55" y="54" text-anchor="middle" style="font-size:22px;font-weight:700;fill:var(--text);font-variation-settings:'wdth' 78">${rate}%</text><text x="55" y="70" text-anchor="middle" style="font-size:9.5px;fill:var(--muted)">allotted</text></svg>`}
+const sbar=(a,n,p)=>{const t=a+n+p||1;return `<div class="sbar"><i style="width:${a/t*100}%;background:var(--green)"></i><i style="width:${n/t*100}%;background:var(--red)"></i><i style="width:${p/t*100}%;background:var(--amber)"></i></div>`};
+function renderStats(){
+  const v=VIEW;if(!v||TAB!=='dash')return;const t=v.totals;
+  setBar('Stats',`${plural(t.applied,'application')} across ${plural(Object.keys(v.accounts).length,'account')}`);
+  const st=(val,l,c)=>`<div class="stat"><div class="v ${c||''}">${val}</div><div class="l">${l}</div></div>`;
+  $('#m').innerHTML=accErrs(v.errors.map(e=>({...e,ok:false})))+
+  `<div class="group"><div class="donut-wrap">${donut(t.allotted,t.not,t.pending)}<div class="legend">
+    <div><i style="background:var(--green)"></i>Allotted<b>${t.allotted}</b></div><div><i style="background:var(--red)"></i>Not allotted<b>${t.not}</b></div><div><i style="background:var(--amber)"></i>Pending<b>${t.pending}</b></div></div></div></div>
+  <div class="sec">Applications</div>
+  <div class="group stats">${st(t.applied,'Applied')}${st(fmt(t.kitta),'Kitta allotted','up')}${st(t.verified,'Verified by bank')}${st(t.submitted,'Awaiting verification')}${st(t.rejected,'Rejected',t.rejected?'dn':'')}${st(t.balance,'Rejected for low balance',t.balance?'dn':'')}</div>
+  <div class="sec">By account</div>
+  <div class="group">${Object.entries(v.accounts).map(([k,a])=>`<div class="row">${av(k)}<div class="main"><div class="t">${esc(k)}</div>
+    <div class="s">${a.allotted} of ${a.applied} allotted${a.rejected?`, ${a.rejected} rejected`:''}</div>${sbar(a.allotted,a.not,a.pending)}</div>
+    <div class="end"><div class="t num">${fmt(a.kitta)}</div><div class="s">kitta</div></div></div>`).join('')||'<div class="row mu">No accounts</div>'}</div>
+  <div class="sec">By company</div>
+  <div class="group">${v.companies.map(c=>{const n=k=>c.rows.filter(r=>r.cls===k&&r.stage!=='rejected').length,a=n('allotted'),x=n('not'),p=n('pending'),rj=c.rows.filter(r=>r.stage==='rejected').length;
+    return `<div class="row"><div class="main"><div class="t">${esc(c.name)}</div><div class="s">${a} allotted, ${x} not, ${p} pending${rj?`, ${rj} rejected`:''}</div>${sbar(a,x,p)}</div></div>`}).join('')||'<div class="row mu">No applications yet</div>'}</div>`}
 
-/* ---------- Portfolio ---------- */
-const num=v=>v==null||v===''||isNaN(+v)?null:+v;
-const sg=n=>(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
-const pc=n=>n==null?'–':(n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'%';
-const cl=n=>n>0?'up':n<0?'dn':'m';
+/* ================= Portfolio ================= */
 const rchg=r=>r.prevValue==null?0:(r.value||0)-r.prevValue;
 const rpct=r=>r.prevValue?rchg(r)/r.prevValue*100:null;
 function agg(rows){let v=0,p=0;rows.forEach(r=>{v+=r.value||0;p+=r.prevValue==null?(r.value||0):r.prevValue});return{value:v,prev:p,chg:v-p,pct:p?(v-p)/p*100:0,n:rows.length}}
-function trend(h){
-  if(h.length<2)return '<p class="m">Not enough history yet. Click "Save snapshot" (or enable the daily auto-snapshot from the sheet menu) to build a trend line.</p>';
-  const W=640,H=150,P=8,vals=h.map(x=>x.total),min=Math.min(...vals),max=Math.max(...vals),rng=(max-min)||1;
-  const pts=h.map((x,i)=>(P+i*(W-2*P)/(h.length-1)).toFixed(1)+','+(H-P-(x.total-min)/rng*(H-2*P)).toFixed(1)).join(' ');
-  const up=vals[vals.length-1]>=vals[0];
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:150px"><polyline fill="none" stroke="${up?'#16a34a':'#ED1B24'}" stroke-width="2" points="${pts}"/></svg>
-  <div class="m" style="display:flex;justify-content:space-between"><span>${esc(h[0].date)} · Rs ${fmt(h[0].total)}</span><span>${esc(h[h.length-1].date)} · Rs ${fmt(h[h.length-1].total)}</span></div>`}
-const wbar=w=>`<div class="bar"><i style="width:${Math.min(100,Math.max(0,w))}%;background:#0C4DA1"></i></div>`;
-
-let PFD=null;
 function pagg(rows){let c=0,v=0,n=0;rows.forEach(x=>{if(x.cost!=null&&x.value!=null){c+=x.cost;v+=x.value;n++}});return{cost:c,value:v,pnl:v-c,pct:c?(v-c)/c*100:null,n:n,total:rows.length}}
-async function pf(){
-  const my=CUR,[r,hist,wc]=await Promise.all([all('getPortfolio'),run('getHistory').catch(()=>[]),run('getWacc').catch(()=>({map:{},url:''}))]);
-  if(my!==CUR)return;
-  PFD={r:r,hist:hist,W:wc.map||{},url:wc.url||''};renderPf()}
-async function editWacc(b){
-  const l=b.dataset.l,s=b.dataset.s,cur=b.dataset.w;
-  const v=prompt('WACC per share for '+s+' in '+l+' (leave blank to clear):',cur||'');if(v===null)return;
-  const n=v.trim()===''?0:parseFloat(v.replace(/,/g,''));if(isNaN(n)||n<0){alert('Please enter a number');return}
-  await run('setWacc',l,s,n);const k=l+'|'+s.trim().toUpperCase();if(n>0)PFD.W[k]=n;else delete PFD.W[k];renderPf()}
-async function prepWacc(b){
-  const items=[];PFD.r.filter(a=>a.ok).forEach(a=>a.data.rows.forEach(x=>items.push({label:a.label,scrip:x.scrip})));
-  b.disabled=true;b.textContent='Preparing…';const res=await run('prepareWaccSheet',items);
-  b.textContent=res.added?('Added '+res.added+' rows. Open the WACC tab in your sheet and type the WACC values, then Refresh.'):'All holdings are already listed in the WACC tab.'}
-
-function renderPf(){
-  const {r,hist,W,url}=PFD,okA=r.filter(a=>a.ok);
+let PF_SORT=LS.get('ipohub_pfsort')||'value';
+async function scrPortfolio(my){
+  if(!ACC.length){$('#m').innerHTML=empty('No accounts yet','Add a MeroShare account to see your holdings.','Add account',"sw('acc')");return}
+  if(CACHE.pf)renderPf();
+  if(!CACHE.pf||Date.now()-CACHE.pf.t>90000){
+    const [r,hist,wc]=await Promise.all([all('getPortfolio'),run('getHistory').catch(()=>[]),run('getWacc').catch(()=>({map:{},url:''}))]);
+    if(my!==CUR)return;CACHE.pf={r,hist:hist||[],W:(wc&&wc.map)||{},url:(wc&&wc.url)||'',t:Date.now()};renderPf()}}
+function spark(h){
+  if(h.length<2)return `<div class="spark-l" style="margin-top:12px"><span>Value history builds up from daily snapshots.</span></div>`;
+  const W=320,H=64,P=3,vals=h.map(x=>x.total),min=Math.min(...vals),max=Math.max(...vals),rng=(max-min)||1;
+  const xy=h.map((x,i)=>[P+i*(W-2*P)/(h.length-1),H-P-(x.total-min)/rng*(H-2*P)]);
+  const line=xy.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const up=vals[vals.length-1]>=vals[0],col=up?'#5FE3A1':'#FF8A8E';
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="${P},${H} ${line} ${W-P},${H}" fill="${col}" opacity=".14"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+    <div class="spark-l"><span>${esc(h[0].date)}</span><span>${plural(h.length,'day')}</span><span>${esc(h[h.length-1].date)}</span></div>`}
+function pfModel(){
+  const {r,W}=CACHE.pf,okA=r.filter(a=>a.ok);
   const A=okA.map(a=>({label:a.label,keys:a.data.keys,rows:a.data.rows.map(x=>{const w=W[a.label+'|'+String(x.scrip).trim().toUpperCase()]||null,cost=w?x.qty*w:null;
     return{...x,acct:a.label,wacc:w,cost:cost,pnl:cost!=null&&x.value!=null?x.value-cost:null}})}));
-  const rowsAll=A.flatMap(a=>a.rows),T=agg(rowsAll),P=pagg(rowsAll),HASPREV=rowsAll.some(x=>x.prevValue!=null);
-  const S={};rowsAll.forEach(x=>{const s=S[x.scrip]=S[x.scrip]||{scrip:x.scrip,name:x.name,qty:0,value:0,prevValue:0,ltp:x.ltp,prev:x.prev,accts:new Set(),cq:0,cc:0,cv:0,cn:0};
-    s.qty+=x.qty||0;s.value+=x.value||0;s.prevValue+=x.prevValue==null?(x.value||0):x.prevValue;s.accts.add(x.acct);
+  const sel=FACC==='all'?A:A.filter(a=>a.label===FACC);
+  const rowsAll=sel.flatMap(a=>a.rows);
+  const S={};rowsAll.forEach(x=>{const s=S[x.scrip]=S[x.scrip]||{scrip:x.scrip,name:x.name,qty:0,value:0,prevValue:0,ltp:x.ltp,prev:x.prev,accts:[],cq:0,cc:0,cv:0,cn:0};
+    s.qty+=x.qty||0;s.value+=x.value||0;s.prevValue+=x.prevValue==null?(x.value||0):x.prevValue;s.accts.push(x);
     if(x.cost!=null&&x.value!=null){s.cq+=x.qty;s.cc+=x.cost;s.cv+=x.value;s.cn++}});
-  const list=Object.values(S).sort((a,b)=>b.value-a.value);
-  const mv=list.filter(s=>s.prevValue>0&&HASPREV).map(s=>({scrip:s.scrip,p:(s.value-s.prevValue)/s.prevValue*100})).sort((a,b)=>b.p-a.p);
-  const best=mv[0],worst=mv[mv.length-1],missing=P.total-P.n;
-  const kp=(l,v,c,sub)=>`<div class="kpi"><div class="v ${c||''}" style="${c?'':'color:#0C4DA1'}">${v}</div><div class="l">${l}</div>${sub?`<div class="${c||'m'}" style="font-size:12px">${sub}</div>`:''}</div>`;
-  const hasP=P.n>0;
-  $('#m').innerHTML=errs(r)+`<div class="card"><button class="s" onclick="go()">↻ Refresh</button> <button class="s" onclick="snap(this)">Save snapshot to Google Sheet</button>
-  <span class="m"> Day gain/loss = last traded price vs previous close (last session when the market is closed). Total gain/loss = value minus cost at your WACC, before tax and selling charges.</span></div>
-  ${HASPREV?'':`<div class="card"><p class="err">MeroShare did not return previous-close prices, so day gain/loss cannot be calculated yet.</p><p class="m">Fields received: ${esc((A[0]&&A[0].keys||[]).join(', '))}. Send me this list and I will map the right one.</p></div>`}
-  ${missing>0?`<div class="warn">WACC is missing for <b>${missing}</b> of ${P.total} holdings, so they are left out of the total gain/loss. Click ✎ next to a holding to enter its WACC, or
-   <button class="mini" onclick="prepWacc(this)">Prepare WACC sheet</button> to list every holding in the WACC tab of your Google Sheet and fill the numbers in bulk.
-   ${url?`<a class="mini" target="_blank" rel="noopener" href="${esc(url)}">Open Google Sheet</a>`:''}</div>`:''}
-  <div class="kpis">${kp('Total portfolio value','Rs '+fmt(T.value))}${kp("Today's gain / loss",HASPREV?sg(T.chg):'–',HASPREV?cl(T.chg):'m',HASPREV?pc(T.pct):'')}
-  ${kp('Invested (cost at WACC)',hasP?'Rs '+fmt(P.cost):'–','',hasP?P.n+' of '+P.total+' holdings':'')}${kp('Total gain / loss',hasP?sg(P.pnl):'–',hasP?cl(P.pnl):'m',hasP?pc(P.pct):'enter WACC')}
-  ${kp('Scrips held',list.length,'',okA.length+' account'+(okA.length==1?'':'s'))}${kp('Best mover today',best?esc(best.scrip):'–',best?'up':'m',best?pc(best.p):'')}${kp('Worst mover today',worst?esc(worst.scrip):'–',worst?'dn':'m',worst?pc(worst.p):'')}</div>
-  <div class="card"><h3>Subtotal by account</h3><table><tr><th>Account</th><th>Scrips</th><th>Value</th><th>Day gain / loss</th><th>Day %</th><th>Invested</th><th>Total gain / loss</th><th>Return</th><th style="width:16%">Share</th></tr>
-  ${A.map(a=>{const g=agg(a.rows),q=pagg(a.rows);return `<tr><td><b>${esc(a.label)}</b></td><td>${g.n}</td><td>Rs ${fmt(g.value)}</td><td class="${cl(g.chg)}">${HASPREV?sg(g.chg):'–'}</td><td class="${cl(g.pct)}">${HASPREV?pc(g.pct):'–'}</td>
-   <td>${q.n?'Rs '+fmt(q.cost):'–'}</td><td class="${cl(q.pnl)}">${q.n?sg(q.pnl):'–'}${q.n<q.total?'<span class="m">*</span>':''}</td><td class="${cl(q.pnl)}">${q.n?pc(q.pct):'–'}</td><td>${wbar(T.value?g.value/T.value*100:0)}</td></tr>`}).join('')}
-  <tr style="font-weight:700"><td>Total</td><td>${list.length}</td><td>Rs ${fmt(T.value)}</td><td class="${cl(T.chg)}">${HASPREV?sg(T.chg):'–'}</td><td class="${cl(T.pct)}">${HASPREV?pc(T.pct):'–'}</td>
-   <td>${hasP?'Rs '+fmt(P.cost):'–'}</td><td class="${cl(P.pnl)}">${hasP?sg(P.pnl):'–'}</td><td class="${cl(P.pnl)}">${hasP?pc(P.pct):'–'}</td><td></td></tr></table>
-   ${missing>0?'<div class="m" style="font-size:12px">* excludes holdings without a WACC</div>':''}</div>
-  <div class="card"><h3>Portfolio value over time</h3>${trend(hist)}</div>
-  <div class="card"><h3>All accounts combined, by scrip</h3><table><tr><th>Scrip</th><th>Accounts</th><th>Qty</th><th>WACC</th><th>LTP</th><th>Day %</th><th>Day gain / loss</th><th>Value</th><th>Total gain / loss</th><th>Return</th><th style="width:10%">Weight</th></tr>
-  ${list.map(s=>{const ch=s.value-s.prevValue,p=s.prevValue?ch/s.prevValue*100:null,w=s.cq?s.cc/s.cq:null,pl=s.cq?s.cv-s.cc:null,part=s.cn<s.accts.size?'<span class="m">*</span>':'';
-   return `<tr><td><b>${esc(s.scrip)}</b></td><td>${s.accts.size}</td><td>${fmt(s.qty)}</td><td>${w?fmt(w):'–'}${w?part:''}</td><td>${fmt(s.ltp)}</td><td class="${cl(p)}">${HASPREV?pc(p):'–'}</td><td class="${cl(ch)}">${HASPREV?sg(ch):'–'}</td><td>${fmt(s.value)}</td>
-   <td class="${cl(pl)}">${pl!=null?sg(pl):'–'}</td><td class="${cl(pl)}">${pl!=null?pc(s.cc?pl/s.cc*100:null):'–'}</td><td>${wbar(T.value?s.value/T.value*100:0)}</td></tr>`}).join('')}</table></div>`+
-  A.map(a=>{const g=agg(a.rows),q=pagg(a.rows),rows=a.rows.slice().sort((x,y)=>(y.value||0)-(x.value||0));
-   return `<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><h3>${esc(a.label)}</h3>
-   <div><b>Rs ${fmt(g.value)}</b> <span class="${cl(g.chg)}">${HASPREV?'today '+sg(g.chg)+' ('+pc(g.pct)+')':''}</span> <span class="${cl(q.pnl)}">${q.n?' · total '+sg(q.pnl)+' ('+pc(q.pct)+')':''}</span></div></div>
-   <table><tr><th>Scrip</th><th>Qty</th><th>WACC</th><th>Prev close</th><th>LTP</th><th>Day %</th><th>Day gain / loss</th><th>Cost</th><th>Value</th><th>Total gain / loss</th><th>Return</th><th>Weight</th></tr>
-   ${rows.map(x=>`<tr><td><b>${esc(x.scrip)}</b> <span class="m" style="font-size:11px">${esc(x.name)}</span></td><td>${fmt(x.qty)}</td>
-   <td>${x.wacc?fmt(x.wacc):'<span class="m">–</span>'} <button class="mini" data-l="${esc(a.label)}" data-s="${esc(x.scrip)}" data-w="${x.wacc||''}" onclick="editWacc(this)">✎</button></td>
-   <td>${fmt(x.prev)}</td><td>${fmt(x.ltp)}</td><td class="${cl(rpct(x))}">${HASPREV?pc(rpct(x)):'–'}</td><td class="${cl(rchg(x))}">${HASPREV?sg(rchg(x)):'–'}</td>
-   <td>${x.cost!=null?fmt(x.cost):'–'}</td><td>${fmt(x.value)}</td><td class="${cl(x.pnl)}">${x.pnl!=null?sg(x.pnl):'–'}</td><td class="${cl(x.pnl)}">${x.pnl!=null?pc(x.pnl/x.cost*100):'–'}</td>
-   <td>${g.value?((x.value||0)/g.value*100).toFixed(1)+'%':'–'}</td></tr>`).join('')}
-   <tr style="font-weight:700"><td>Subtotal</td><td>${fmt(rows.reduce((s,x)=>s+(x.qty||0),0))}</td><td></td><td></td><td></td><td class="${cl(g.pct)}">${HASPREV?pc(g.pct):'–'}</td><td class="${cl(g.chg)}">${HASPREV?sg(g.chg):'–'}</td>
-   <td>${q.n?fmt(q.cost):'–'}</td><td>Rs ${fmt(g.value)}</td><td class="${cl(q.pnl)}">${q.n?sg(q.pnl):'–'}</td><td class="${cl(q.pnl)}">${q.n?pc(q.pct):'–'}</td><td>100%</td></tr></table></div>`}).join('')}
-async function snap(b){b.disabled=true;b.textContent='Saving…';await run('snapshotAll');b.textContent='Saved ✓'}
+  const list=Object.values(S).map(s=>({...s,chg:s.value-s.prevValue,dpct:s.prevValue?(s.value-s.prevValue)/s.prevValue*100:null,wacc:s.cq?s.cc/s.cq:null,pnl:s.cq?s.cv-s.cc:null,ret:s.cc?(s.cv-s.cc)/s.cc*100:null,partial:s.cn<s.accts.length}));
+  return {A,sel,rowsAll,list,T:agg(rowsAll),P:pagg(rowsAll),HASPREV:rowsAll.some(x=>x.prevValue!=null)}}
+function renderPf(){
+  if(!CACHE.pf||TAB!=='pf')return;
+  const {A,sel,rowsAll,list,T,P,HASPREV}=pfModel(),{r,hist,url}=CACHE.pf,hasP=P.n>0,missing=P.total-P.n;
+  const sorters={value:(a,b)=>b.value-a.value,day:(a,b)=>(b.dpct??-1e9)-(a.dpct??-1e9),ret:(a,b)=>(b.ret??-1e9)-(a.ret??-1e9),name:(a,b)=>String(a.scrip).localeCompare(b.scrip)};
+  list.sort(sorters[PF_SORT]||sorters.value);
+  const movers=list.filter(s=>s.dpct!=null&&HASPREV).slice().sort((a,b)=>b.dpct-a.dpct);
+  setBar('Portfolio',FACC==='all'?`${plural(list.length,'scrip')} across ${plural(A.length,'account')}`:esc(FACC),
+   `<div class="hero"><div class="v"><small>Rs</small>${fmt(Math.round(T.value))}</div>
+    <div class="chg ${HASPREV?cl(T.chg):''}">${HASPREV?`${sg(Math.round(T.chg))} today (${pc(T.pct)})`:'Day change unavailable'}</div>
+    <div class="meta"><div>Invested<b>${hasP?rs(Math.round(P.cost)):'–'}</b></div><div>Total gain<b class="${hasP?cl(P.pnl):''}">${hasP?sg(Math.round(P.pnl)):'–'}</b></div><div>Return<b class="${hasP?cl(P.pnl):''}">${hasP?pc(P.pct):'–'}</b></div></div>
+    ${FACC==='all'?spark(hist):''}</div>`);
+  const holdRow=s=>`<button class="row" data-s="${esc(s.scrip)}" onclick="holdSheet(this.dataset.s)"><div class="main"><div class="t">${esc(s.scrip)}</div>
+    <div class="s">${fmt(s.qty)} sh${s.wacc?`, WACC ${fmt(s.wacc.toFixed(2))}`:', no WACC'}${FACC==='all'&&s.accts.length>1?`, ${s.accts.length} accounts`:''}</div></div>
+    <div class="end"><div class="t">${fmt(Math.round(s.value))}</div><div class="s num ${HASPREV?cl(s.dpct):''}">${HASPREV?pc(s.dpct):fmt(s.ltp)}</div></div>${IC.chev.replace('<svg','<svg class="chev"')}</button>`;
+  $('#m').innerHTML=accChips()+`<div style="height:10px"></div>`+accErrs(r)+
+   (HASPREV?'':note('warn',`MeroShare didn’t send previous closing prices, so today’s change can’t be worked out. Fields received: ${esc((A[0]&&A[0].keys||[]).join(', '))}.`))+
+   (missing>0?note('warn',`${plural(missing,'holding')} ${missing===1?'has':'have'} no WACC, so ${missing===1?'it is':'they are'} left out of your gain. Tap a holding to add it, or fill them all in the sheet.`,
+     `<button class="sbtn" onclick="prepWacc(this)">${IC.sheet}List them in the sheet</button>${url?`<a class="sbtn" href="${esc(url)}" target="_blank" rel="noopener">${IC.ext}Open sheet</a>`:''}`):'')+
+   (movers.length>1?`<div class="group stats" style="margin-bottom:4px"><div class="stat"><div class="l">Best today</div><div class="v up" style="font-size:19px">${esc(movers[0].scrip)} ${pc(movers[0].dpct)}</div></div>
+     <div class="stat"><div class="l">Worst today</div><div class="v dn" style="font-size:19px">${esc(movers[movers.length-1].scrip)} ${pc(movers[movers.length-1].dpct)}</div></div></div>`:'')+
+   (FACC==='all'&&A.length>1?`<div class="sec">Accounts</div><div class="group">${A.map(a=>{const g=agg(a.rows),q=pagg(a.rows);
+     return `<button class="row" data-k="${esc(a.label)}" onclick="setFacc(this.dataset.k)">${av(a.label)}<div class="main"><div class="t">${esc(a.label)}</div>
+      <div class="s">${plural(g.n,'scrip')}${q.n?`, gain <span class="${cl(q.pnl)}">${sg(Math.round(q.pnl))}</span>`:''}</div></div>
+      <div class="end"><div class="t">${fmt(Math.round(g.value))}</div><div class="s num ${HASPREV?cl(g.chg):''}">${HASPREV?sg(Math.round(g.chg)):''}</div></div>${IC.chev.replace('<svg','<svg class="chev"')}</button>`}).join('')}</div>`:'')+
+   `<div class="sec"><span>Holdings</span></div>
+    <div class="chips" role="group" aria-label="Sort">${[['value','Value'],['day','Today'],['ret','Return'],['name','Name']].map(([k,l])=>`<button class="chip" aria-pressed="${PF_SORT===k}" onclick="PF_SORT='${k}';LS.set('ipohub_pfsort','${k}');renderPf()">${l}</button>`).join('')}</div><div style="height:8px"></div>
+    ${list.length?`<div class="group">${list.map(holdRow).join('')}</div>`:empty('No holdings','Shares in this demat account will show up here.')}
+   <div class="sec">Google Sheet</div>
+   <div class="group"><button class="row" onclick="snap(this)">${IC.download.replace('<svg','<svg style="width:22px;height:22px;color:var(--blue)"')}<div class="main"><div class="t">Save today’s snapshot</div><div class="s">Adds today’s values to the history line</div></div></button>
+   ${url?`<a class="row" href="${esc(url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${IC.sheet.replace('<svg','<svg style="width:22px;height:22px;color:var(--blue)"')}<div class="main"><div class="t">Open Google Sheet</div><div class="s">History, results and WACC tabs</div></div>${IC.ext.replace('<svg','<svg class="chev"')}</a>`:''}</div>`}
+async function holdSheet(scrip){
+  const {list,HASPREV}=pfModel(),s=list.find(x=>x.scrip===scrip);if(!s)return;
+  const kv=(k,v,c)=>`<div class="row"><span class="k">${k}</span><span class="val ${c||''}">${v}</span></div>`;
+  const per=s.accts.map(x=>`<div class="row">${av(x.acct)}<div class="main"><div class="t">${esc(x.acct)}</div><div class="s">${fmt(x.qty)} sh, value ${fmt(Math.round(x.value))}${x.pnl!=null?`, gain <span class="${cl(x.pnl)}">${sg(Math.round(x.pnl))}</span>`:''}</div></div>
+    <button class="sbtn" data-l="${esc(x.acct)}" data-w="${x.wacc||''}" onclick="SHEET.close({acct:this.dataset.l,w:this.dataset.w})">${x.wacc?'WACC '+fmt(x.wacc):'Add WACC'}</button></div>`).join('');
+  const v=await sheet({title:s.scrip,lead:esc(s.name||''),
+    body:`<div class="group kv">${kv('Quantity',fmt(s.qty)+' sh')}${kv('Last price',fmt(s.ltp))}${kv('Previous close',fmt(s.prev))}
+     ${HASPREV?kv('Today',`${sg(Math.round(s.chg))} (${pc(s.dpct)})`,cl(s.chg)):''}${kv('Value',rs(Math.round(s.value)))}
+     ${kv('WACC',s.wacc?fmt(s.wacc.toFixed(2))+(s.partial?' (some accounts)':''):'Not entered')}${kv('Cost',s.cq?rs(Math.round(s.cc)):'–')}
+     ${kv('Total gain',s.pnl!=null?`${sg(Math.round(s.pnl))} (${pc(s.ret)})`:'–',s.pnl!=null?cl(s.pnl):'')}</div>
+     <div class="sec">${s.accts.length>1?'Held in':'Account'}</div><div class="group">${per}</div>
+     <p class="mu" style="font-size:12px;margin:10px 4px 0">Gain is before capital gains tax and selling charges.</p>`});
+  if(v&&v.acct)waccSheet(v.acct,s.scrip,v.w)}
+async function waccSheet(acct,scrip,cur){
+  const v=await sheet({title:'WACC for '+scrip,lead:`${esc(acct)}. Copy it from MeroShare, My Purchase Source.`,
+    body:`<label class="field"><span>WACC per share (Rs)</span><input id="wc" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(cur||'')}" placeholder="e.g. 482.35"></label>`,
+    actions:[...(cur?[{label:'Remove',kind:'btn-plain',busy:'Removing…',fn:async()=>{await runNG('setWacc',acct,scrip,0);return 0}}]:[{label:'Cancel'}]),
+      {label:'Save WACC',kind:'btn-blue',busy:'Saving…',fn:async()=>{const n=parseFloat(String($('#wc').value).replace(/,/g,''));if(!(n>0)){sheetErr('Enter the WACC as a number above 0.');return}await runNG('setWacc',acct,scrip,n);return n}}]});
+  if(v===null||v===undefined)return;
+  const k=acct+'|'+String(scrip).trim().toUpperCase();if(v>0)CACHE.pf.W[k]=v;else delete CACHE.pf.W[k];
+  toast(v>0?'WACC saved':'WACC removed');renderPf()}
+async function prepWacc(b){
+  const items=[];CACHE.pf.r.filter(a=>a.ok).forEach(a=>a.data.rows.forEach(x=>items.push({label:a.label,scrip:x.scrip})));
+  b.disabled=true;b.textContent='Listing…';
+  try{const res=await runNG('prepareWaccSheet',items);toast(res.added?`Added ${plural(res.added,'row')} to the WACC tab`:'Every holding is already in the WACC tab');b.textContent='Listed in sheet'}
+  catch(e){b.disabled=false;b.textContent='List them in the sheet';toast(e.message,'err')}}
+async function snap(b){b.disabled=true;const t=b.querySelector('.t');t.textContent='Saving snapshot…';
+  try{await runNG('snapshotAll');t.textContent='Snapshot saved';toast('Snapshot saved to your sheet');delete CACHE.pf}
+  catch(e){t.textContent='Save today’s snapshot';b.disabled=false;toast(e.message,'err')}}
 
-/* ---------- Accounts + alerts ---------- */
-async function acc(){
-  const st=await run('getSettings');
-  $('#m').innerHTML=`<div class="card"><h3>Accounts</h3><table><tr><th>Label</th><th>DP</th><th>User</th><th>Bank</th><th>Kitta</th><th></th></tr>
-  ${ACC.map(a=>`<tr><td>${esc(a.label)}</td><td>${a.dp_id}</td><td>${esc(a.username)}</td><td>${esc(a.bank_name)}</td><td>${a.kitta}</td>
-  <td><button class="mini" data-l="${esc(a.label)}" onclick="edit(this.dataset.l)">Edit</button><button class="mini" data-l="${esc(a.label)}" onclick="testLogin(this)">Test login</button><button class="mini" data-l="${esc(a.label)}" onclick="del(this.dataset.l)">Remove</button><div class="m" style="font-size:12px" id="tl_${esc(a.label).replace(/[^a-zA-Z0-9]/g,'_')}"></div></td></tr>`).join('')}</table></div>
-  <div class="card"><h3 id="f_title">Add account</h3>
-  <input id="f_label" placeholder="Label (e.g. Self)"><input id="f_dp" type="number" placeholder="DP code (5 digits)"><input id="f_u" placeholder="MeroShare username"><br>
-  <input id="f_p" type="password" placeholder="MeroShare password"><input id="f_crn" placeholder="CRN"><input id="f_pin" type="password" placeholder="Transaction PIN"><br>
-  <input id="f_bank" placeholder="Bank name contains (e.g. Machhapuchchhre)"><input id="f_k" type="number" value="10" style="width:80px">
-  <button class="s" id="f_btn" onclick="save()">Save account</button> <button id="f_cancel" style="display:none" onclick="go()">Cancel edit</button> <div id="f_msg" class="m"></div></div>
-  <div class="card"><h3>Email alerts for IPO results</h3>
-  <p class="m">Checks iporesult.cdsc.com.np every 30 minutes. You get one email when a result is published for an IPO you applied to, and a summary once allotment is visible for your accounts.</p>
-  <input id="al_e" type="email" placeholder="you@gmail.com" value="${esc(st.email)}" style="width:260px">
-  <button class="s" onclick="alertsOn()">Enable alerts</button> <button onclick="alertsOff()">Disable</button>
-  <span class="${st.enabled?'ok':'m'}"> ${st.enabled?'✓ Active':'Off'}</span><div id="al_msg" class="m"></div></div>`}
-let EDIT=null;
-function edit(l){const a=ACC.find(x=>x.label===l);if(!a)return;EDIT=l;
-  $('#f_label').value=a.label;$('#f_label').readOnly=true;$('#f_dp').value=a.dp_id;$('#f_u').value=a.username;$('#f_bank').value=a.bank_name;$('#f_k').value=a.kitta;
-  ['f_p','f_crn','f_pin'].forEach(i=>{$('#'+i).value='';$('#'+i).placeholder='Leave blank to keep current'});
-  $('#f_title').textContent='Edit account: '+l;$('#f_btn').textContent='Update account';$('#f_cancel').style.display='';$('#f_msg').textContent='Only retype what changed. Blank password, CRN or PIN keeps the saved value.';
-  $('#f_title').scrollIntoView({behavior:'smooth'})}
-async function save(){
-  const a={label:$('#f_label').value.trim(),dp_id:$('#f_dp').value.trim(),username:$('#f_u').value.trim(),password:$('#f_p').value,crn:$('#f_crn').value.trim(),pin:$('#f_pin').value,bank_name:$('#f_bank').value.trim(),kitta:+$('#f_k').value||10};
-  const msg=t=>{$('#f_msg').innerHTML='<span class="err">'+esc(t)+'</span>'};
-  if(!a.label||!a.dp_id||!a.username)return msg('Label, DP code and username are required.');
-  if(!EDIT&&(!a.password||!a.crn||!a.pin))return msg('Password, CRN and transaction PIN are required for a new account.');
-  if(!a.bank_name)return msg('Bank name is required.');
-  try{$('#f_msg').textContent='Saving…';await run('saveAccount',a);EDIT=null;VIEW=null;go()}catch(e){msg(e.message)}}
-async function testLogin(b){const l=b.dataset.l,o=$('#tl_'+l.replace(/[^a-zA-Z0-9]/g,'_'));o.textContent='Logging in…';
-  const r=await run('testLogin',l);o.innerHTML=r.ok?`<span class="ok">✓ Login OK ${esc(r.data.name)} ${esc(r.data.demat)}</span>`:`<span class="err">${esc(r.error)}</span>`}
-async function del(l){if(confirm('Remove '+l+'?')){await run('deleteAccount',l);go()}}
-async function alertsOn(){try{$('#al_msg').textContent='Enabling…';await run('enableAlerts',$('#al_e').value);go()}catch(e){$('#al_msg').innerHTML='<span class="err">'+esc(e.message)+'</span>'}}
-async function alertsOff(){await run('disableAlerts');go()}
+/* ================= Accounts ================= */
+async function scrAccounts(my){
+  if(CACHE.acc)renderAcc();
+  if(!CACHE.acc||Date.now()-CACHE.acc.t>120000){const st=await run('getSettings');if(my!==CUR)return;CACHE.acc={st,t:Date.now()};renderAcc()}}
+function renderAcc(){
+  if(TAB!=='acc')return;const st=CACHE.acc.st;
+  setBar('Accounts',ACC.length?plural(ACC.length,'MeroShare account'):'');
+  $('#m').innerHTML=`<div class="sec">MeroShare accounts</div><div class="group">
+   ${ACC.map(a=>`<button class="row" data-l="${esc(a.label)}" onclick="accSheet(this.dataset.l)">${av(a.label)}<div class="main"><div class="t">${esc(a.label)}</div>
+     <div class="s">DP ${esc(a.dp_id)}, ${esc(a.bank_name)}, ${esc(a.kitta)} kitta</div></div>${IC.chev.replace('<svg','<svg class="chev"')}</button>`).join('')}
+   <button class="row" onclick="accSheet(null)"><span class="av" style="background:var(--blue-t);color:var(--blue)">${IC.plus.replace('<svg','<svg style="width:18px;height:18px"')}</span><div class="main"><div class="t" style="color:var(--blue)">Add account</div></div></button></div>
+  <div class="sec">Result alerts by email</div>
+  <div class="group"><label class="row"><div class="main"><div class="t">Email me when results are out</div><div class="s">${st.enabled?'On, sent to '+esc(st.email):'Off'}</div></div>
+   <span class="sw"><input type="checkbox" id="alt" ${st.enabled?'checked':''} onchange="toggleAlerts(this)"><i></i></span></label></div>
+  <div class="sec">This app</div>
+  <div class="group">
+   ${DEFERRED?`<button class="row" onclick="install()">${IC.download.replace('<svg','<svg style="width:22px;height:22px;color:var(--blue)"')}<div class="main"><div class="t">Install on this phone</div><div class="s">Adds IPO Hub to your home screen</div></div></button>`:''}
+   <button class="row" onclick="logout()">${IC.lock.replace('<svg','<svg style="width:22px;height:22px;color:var(--red)"')}<div class="main"><div class="t">Lock app</div><div class="s">Asks for the passcode next time</div></div></button>
+   <div class="row"><div class="main"><div class="t">Version</div></div><span class="mu">${APP_VERSION}</span></div></div>
+  <p class="mu" style="font-size:12px;margin:12px 4px">Passwords, CRN and PIN stay in your Google Apps Script and are never sent to this phone.</p>`}
+async function accSheet(label){
+  const a=label?ACC.find(x=>x.label===label):null,ed=!!a,keep=ed?'Leave blank to keep':'';
+  const f=(id,l,type,val,ph,extra='')=>`<label class="field"><span>${l}</span><input id="${id}" type="${type}" value="${esc(val||'')}" placeholder="${esc(ph||'')}" ${extra}></label>`;
+  const acts=[];
+  if(ed)acts.push({label:'Remove',kind:'btn-plain',value:'del'});else acts.push({label:'Cancel'});
+  acts.push({label:ed?'Save changes':'Add account',kind:'btn-blue',busy:'Saving…',fn:async()=>{
+    const v=id=>$('#'+id).value.trim();
+    const o={label:v('f_label'),dp_id:v('f_dp'),username:v('f_u'),password:$('#f_p').value,crn:v('f_crn'),pin:$('#f_pin').value,bank_name:v('f_bank'),kitta:+v('f_k')||10};
+    if(!o.label||!o.dp_id||!o.username){sheetErr('Name, DP code and username are required.');return}
+    if(!ed&&ACC.some(x=>x.label===o.label)){sheetErr('An account with this name already exists.');return}
+    if(!ed&&(!o.password||!o.crn||!o.pin)){sheetErr('Password, CRN and transaction PIN are required for a new account.');return}
+    if(!o.bank_name){sheetErr('Bank name is required.');return}
+    if(o.kitta<10||o.kitta%10){sheetErr('Default kitta must be 10 or more, in tens.');return}
+    await runNG('saveAccount',o);return 'saved'}});
+  const v=await sheet({title:ed?a.label:'Add account',lead:ed?'Only change what’s different. Blank password, CRN or PIN keeps the saved one.':'Use the same details you use on the MeroShare website.',
+    body:`${f('f_label','Name in this app','text',ed?a.label:'','e.g. Sanam Gurung',ed?'readonly':'')}
+     <div class="grid2">${f('f_dp','DP code','text',ed?a.dp_id:'','e.g. 14400','inputmode="numeric"')}${f('f_u','MeroShare username','text',ed?a.username:'','','autocomplete="off" autocapitalize="off"')}</div>
+     ${f('f_p','MeroShare password','password','',keep,'autocomplete="new-password"')}
+     <div class="grid2">${f('f_crn','CRN','text','',keep,'autocapitalize="characters"')}${f('f_pin','Transaction PIN','password','',keep,'inputmode="numeric" autocomplete="off"')}</div>
+     <div class="grid2">${f('f_bank','Bank name contains','text',ed?a.bank_name:'','e.g. Machhapuchchhre')}${f('f_k','Default kitta','number',ed?a.kitta:10,'','inputmode="numeric" step="10" min="10"')}</div>
+     ${ed?`<button class="sbtn" type="button" id="tlb" data-l="${esc(a.label)}" onclick="testLogin(this)">${IC.lock}Test login</button><div class="s mu" id="tlm" style="font-size:13px;margin-top:8px"></div>`:''}`,
+    actions:acts});
+  if(v==='saved'){ACC_T=0;VIEW=null;delete CACHE.ipo;delete CACHE.pf;toast(ed?'Changes saved':'Account added');go()}
+  if(v==='del'){const ok=await sheet({title:`Remove ${a.label}?`,lead:'Its saved login is deleted from your Apps Script. Results and WACC already in the sheet stay.',actions:[{label:'Cancel'},{label:'Remove',kind:'btn-red',value:true}]});
+    if(ok){await runNG('deleteAccount',a.label);ACC_T=0;VIEW=null;delete CACHE.ipo;delete CACHE.pf;if(FACC===a.label)FACC='all';toast('Account removed');go()}}}
+async function testLogin(b){b.disabled=true;const m=$('#tlm');m.textContent='Logging in to MeroShare…';
+  try{const r=await runNG('testLogin',b.dataset.l);m.innerHTML=r.ok?`<span class="up">Login works${r.data.name?' for '+esc(r.data.name):''} ${esc(r.data.demat)}</span>`:`<span class="dn">${esc(r.error)}</span>`}
+  catch(e){m.innerHTML=`<span class="dn">${esc(e.message)}</span>`}finally{b.disabled=false}}
+async function toggleAlerts(cb){
+  const st=CACHE.acc.st;
+  if(cb.checked){cb.checked=false;
+    const v=await sheet({title:'Result alerts',lead:'You get one email when a result is out for an IPO you applied to, and a summary once every account’s result is known.',
+      body:`<label class="field"><span>Email address</span><input id="al_e" type="email" inputmode="email" value="${esc(st.email)}" placeholder="you@gmail.com"></label>`,
+      actions:[{label:'Cancel'},{label:'Turn on',kind:'btn-blue',busy:'Turning on…',fn:async()=>{const e=$('#al_e').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){sheetErr('Enter a valid email address.');return}await runNG('enableAlerts',e);return e}}]});
+    if(v){CACHE.acc.st={email:v,enabled:true};toast('Alerts on. A test email is on its way.');renderAcc()}}
+  else{cb.disabled=true;try{await runNG('disableAlerts');CACHE.acc.st={...st,enabled:false};toast('Alerts off');renderAcc()}catch(e){cb.checked=true;cb.disabled=false;toast(e.message,'err')}}}
+
+/* ================= lock / login ================= */
 function login(msg){
-  CUR++;document.querySelectorAll('#bar button').forEach(b=>b.classList.remove('on'));
-  $('#m').innerHTML=`<div class="card" style="max-width:440px;margin:24px auto"><h3>Unlock IPO Hub</h3>
-  ${msg?`<p class="err">${esc(msg)}</p>`:''}
-  <p class="m">Enter the passcode you set in your Google Sheet (IPO Hub menu &rarr; Set / change app passcode).</p>
-  <input id="lg_p" type="password" placeholder="App passcode" style="width:100%" autocomplete="current-password">
-  <details style="margin:8px 0"><summary class="m">Advanced: Apps Script URL</summary><input id="lg_u" style="width:100%" value="${esc(API)}"></details>
-  <button class="s" style="width:100%;padding:12px" onclick="doLogin()">Unlock</button><div id="lg_msg" class="m" style="margin-top:8px"></div></div>`;
-  const p=$('#lg_p');p.focus();p.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})}
+  CUR++;
+  $('#root').innerHTML=`<div class="login"><div class="box"><img src="icons/icon-192.png" alt="">
+   <h1>IPO Hub</h1><p>Enter the passcode you set in your Google Sheet, under IPO Hub, Set / change app passcode.</p>
+   <input id="lg_p" type="password" placeholder="App passcode" autocomplete="current-password" aria-label="App passcode">
+   <details><summary>Apps Script address</summary><input id="lg_u" value="${esc(API)}" aria-label="Apps Script URL"></details>
+   <button class="btn btn-red" id="lg_b" onclick="doLogin()">Unlock</button><div class="msg" id="lg_msg">${msg?esc(msg):''}</div></div></div>`;
+  const p=$('#lg_p');setTimeout(()=>p.focus(),50);p.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})}
 async function doLogin(){
-  const p=$('#lg_p').value.trim(),u=$('#lg_u').value.trim()||DEFAULT_API;if(!p)return;
-  $('#lg_msg').textContent='Checking…';PASS=p;API=u;
-  try{await rpc('listAccounts',[]);LS.set('ipohub_pass',p);LS.set('ipohub_api',u);tab='ipo';go()}
-  catch(e){PASS='';$('#lg_msg').innerHTML='<span class="err">'+esc(e.message)+'</span>'}}
-function logout(){if(!confirm('Lock the app on this phone? You will need the passcode again.'))return;PASS='';LS.del('ipohub_pass');VIEW=null;login()}
-let DEFERRED=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFERRED=e;const b=$('#inst');if(b)b.style.display=''});
-async function install(){if(!DEFERRED)return;DEFERRED.prompt();await DEFERRED.userChoice;DEFERRED=null;$('#inst').style.display='none'}
-window.addEventListener('online',()=>$('#off').style.display='none');window.addEventListener('offline',()=>$('#off').style.display='');
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-if(!navigator.onLine)$('#off').style.display='';
-go();
-</script></body></html>
+  const p=$('#lg_p').value.trim(),u=$('#lg_u').value.trim()||DEFAULT_API;if(!p){$('#lg_msg').textContent='Enter your passcode.';return}
+  const b=$('#lg_b');b.disabled=true;b.textContent='Unlocking…';$('#lg_msg').textContent='';PASS=p;API=u;
+  try{ACC=await rpc('listAccounts',[]);ACC_T=Date.now();LS.set('ipohub_pass',p);LS.set('ipohub_api',u);shell();go()}
+  catch(e){PASS='';b.disabled=false;b.textContent='Unlock';vib(60);
+    const net=!(e instanceof AuthError)&&!/passcode/i.test(e.message);
+    $('#lg_msg').innerHTML=esc(e.message)+(net?`<br><a href="${esc(u+(u.includes('?')?'&':'?')+'ping=1')}" target="_blank" rel="noopener" style="color:#fff">Test the connection</a> <span style="color:var(--hero-muted)">should show "ok":true without asking you to sign in.</span>`:'')}}
+async function logout(){const ok=await sheet({title:'Lock IPO Hub?',lead:'You’ll need the passcode to open it again on this phone.',actions:[{label:'Cancel'},{label:'Lock',kind:'btn-red',value:true}]});
+  if(!ok)return;PASS='';LS.del('ipohub_pass');VIEW=null;for(const k in CACHE)delete CACHE[k];ACC=[];ACC_T=0;login()}
+
+/* ================= install, offline, pull to refresh ================= */
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFERRED=e;if(TAB==='acc'&&CACHE.acc)renderAcc()});
+async function install(){if(!DEFERRED)return;DEFERRED.prompt();await DEFERRED.userChoice;DEFERRED=null;if(CACHE.acc)renderAcc()}
+window.addEventListener('online',()=>{const o=$('#off');if(o)o.hidden=true});
+window.addEventListener('offline',()=>{const o=$('#off');if(o)o.hidden=false});
+(function(){let y0=null,dy=0;
+  addEventListener('touchstart',e=>{y0=(scrollY<=0&&!SHEET&&PASS)?e.touches[0].clientY:null;dy=0},{passive:true});
+  addEventListener('touchmove',e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;const p=$('#ptr');if(!p)return;
+    if(dy>0){p.style.transition='none';p.style.height=Math.min(dy*.45,56)+'px';p.textContent=dy>90?'Release to refresh':'Pull to refresh'}},{passive:true});
+  addEventListener('touchend',()=>{const p=$('#ptr');if(y0==null||!p)return;p.style.transition='';
+    if(dy>90){p.textContent='Refreshing…';p.style.height='40px';vib(8);refresh().finally(()=>{p.style.height='0'})}else p.style.height='0';y0=null},{passive:true})})();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if(PASS){shell();go()}else login();
+</script>
+</body>
+</html>
