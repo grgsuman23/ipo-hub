@@ -262,7 +262,7 @@ const IC={
 
 /* ================= transport ================= */
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jIopyKCMBssCywzvqJbM0hGQ/exec';
-const APP_VERSION='2.0.1';
+const APP_VERSION='2.0.3';
 const CDSC_URL='https://iporesult.cdsc.com.np/';
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let API=LS.get('ipohub_api')||DEFAULT_API,PASS=LS.get('ipohub_pass')||'';
@@ -394,23 +394,28 @@ async function scrApply(my){
   if(!d||Date.now()-d.t>60000){const r=await all('getIssues');if(my!==CUR)return;CACHE.ipo={r,t:Date.now()};renderApply()}}
 function renderApply(){
   const r=CACHE.ipo.r;ISSUES={};
-  r.filter(x=>x.ok).forEach(x=>x.data.forEach(i=>{const m=ISSUES[i.companyShareId]=ISSUES[i.companyShareId]||{id:i.companyShareId,company:i.companyName,scrip:i.scrip,type:i.shareTypeName,group:i.shareGroupName,closes:i.issueCloseDate,acc:{}};m.acc[x.label]=i.action}));
-  const l=Object.values(ISSUES),pend=l.reduce((s,i)=>s+Object.values(i.acc).filter(a=>a==='apply').length,0);
-  setBar('Apply IPO',l.length?`${plural(l.length,'issue')} open${pend?`, ${plural(pend,'account')} still to apply`:', all accounts applied'}`:'No issues open right now');
-  $('#m').innerHTML=accErrs(r)+(l.length?l.map(i=>{
+  r.filter(x=>x.ok).forEach(x=>x.data.forEach(i=>{const m=ISSUES[i.companyShareId]=ISSUES[i.companyShareId]||{id:i.companyShareId,company:i.companyName,scrip:i.scrip,type:i.shareTypeName,group:i.shareGroupName,closes:i.issueCloseDate,acc:{},raw:{}};m.acc[x.label]=i.action||'';m.raw[x.label]=i}));
+  const l=Object.values(ISSUES),cnt3={apply:0,done:0,other:0};
+  l.forEach(i=>Object.values(i.acc).forEach(a=>{if(a==='apply')cnt3.apply++;else if(a==='inProcess'||a==='edit')cnt3.done++;else cnt3.other++}));
+  const parts=[cnt3.apply&&`${cnt3.apply} to apply`,cnt3.done&&`${cnt3.done} applied`,cnt3.other&&`${cnt3.other} no status`].filter(Boolean).join(', ');
+  setBar('Apply IPO',l.length?`${plural(l.length,'issue')} open${parts?': '+parts:''}`:'No issues open right now');
+  $('#m').innerHTML=installBanner()+accErrs(r)+(l.length?l.map(i=>{
     const c=closesIn(i.closes);
-    const rows=ACC.map(a=>{const act=i.acc[a.label],can=act==='apply',st=act?(ACT[act]||[act,'p-n']):['Not eligible','p-n'];
+    const rows=ACC.map(a=>{const listed=a.label in i.acc,act=i.acc[a.label],can=act==='apply',st=!listed?['Not listed','p-n']:act?(ACT[act]||[act,'p-n']):['No status','p-n'];
       return `<label class="row${can?'':' dis'}">${av(a.label)}<div class="main"><div class="t">${esc(a.label)}</div><div class="s">${esc(a.kitta||10)} kitta by default</div></div>
       <span class="pill ${st[1]}">${esc(st[0])}</span><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'checked':'disabled'} onchange="cnt(${i.id})" aria-label="Apply from ${esc(a.label)}"></label>`}).join('');
     const anyCan=Object.values(i.acc).includes('apply');
     return `<div class="group" style="margin-bottom:14px"><div class="ghead"><h2>${esc(i.company)}</h2>
-      <div class="s"><span>${esc(i.scrip)}</span><span>${esc([i.type,i.group].filter(Boolean).join(', '))}</span>${c?`<span class="pill ${c[1]}">${esc(c[0])}</span>`:''}</div></div>
+      <div class="s"><span>${esc(i.scrip)}</span><span>${esc([i.type,i.group].filter(Boolean).join(', '))}</span>${c?`<span class="pill ${c[1]}">${esc(c[0])}</span>`:''}<button class="sbtn" style="margin-left:auto" onclick="rawSheet(${i.id})">MeroShare details</button></div></div>
       ${anyCan?`<div class="row" style="min-height:44px;padding:8px 14px"><div class="main s" id="sel_${i.id}"></div><button class="sbtn" onclick="selAll(${i.id})" id="sa_${i.id}">Select all</button></div>`:''}
       ${rows}
       ${anyCan?`<div class="gfoot"><div class="step" role="group" aria-label="Kitta"><button onclick="kstep(${i.id},-10)" aria-label="Less">−</button><span id="kv_${i.id}"></span><button onclick="kstep(${i.id},10)" aria-label="More">+</button></div>
       <button class="btn btn-red" style="flex:1" id="ab_${i.id}" onclick="applySel(${i.id})"></button></div>`:''}</div>`}).join('')
     :empty('No IPOs open right now','When a new issue opens for any of your accounts, it appears here.'));
   l.forEach(i=>{kshow(i.id);cnt(i.id)})}
+async function rawSheet(id){const i=ISSUES[id];if(!i)return;
+  const fields=Object.entries(i.raw).map(([lab,o])=>`<div class="sec">${esc(lab)}</div><div class="group kv">${Object.entries(o).filter(([k,v])=>v===null||typeof v!=='object').map(([k,v])=>`<div class="row"><span class="k">${esc(k)}</span><span class="val" style="font-weight:500;white-space:normal;word-break:break-all">${esc(v===null?'null':v)}</span></div>`).join('')}</div>`).join('');
+  await sheet({title:i.company,lead:'Exactly what MeroShare returned for each account. Nothing here is secret, so you can screenshot it.',body:fields})}
 const picked=id=>[...document.querySelectorAll(`.ck[data-i="${id}"]:checked`)].map(c=>c.value);
 const canList=id=>ACC.filter(a=>ISSUES[id]&&ISSUES[id].acc[a.label]==='apply').map(a=>a.label);
 function cnt(id){const b=$('#ab_'+id);if(!b)return;const n=picked(id).length,tot=canList(id).length;
@@ -635,7 +640,7 @@ function renderAcc(){
    <span class="sw"><input type="checkbox" id="alt" ${st.enabled?'checked':''} onchange="toggleAlerts(this)"><i></i></span></label></div>
   <div class="sec">This app</div>
   <div class="group">
-   ${DEFERRED?`<button class="row" onclick="install()">${IC.download.replace('<svg','<svg style="width:22px;height:22px;color:var(--blue)"')}<div class="main"><div class="t">Install on this phone</div><div class="s">Adds IPO Hub to your home screen</div></div></button>`:''}
+   ${!STANDALONE()?`<button class="row" onclick="installHelp()">${IC.download.replace('<svg','<svg style="width:22px;height:22px;color:var(--blue)"')}<div class="main"><div class="t">Install on this phone</div><div class="s">Adds IPO Hub to your home screen</div></div></button>`:''}
    <button class="row" onclick="logout()">${IC.lock.replace('<svg','<svg style="width:22px;height:22px;color:var(--red)"')}<div class="main"><div class="t">Lock app</div><div class="s">Asks for the passcode next time</div></div></button>
    <div class="row"><div class="main"><div class="t">Version</div></div><span class="mu">${APP_VERSION}</span></div></div>
   <p class="mu" style="font-size:12px;margin:12px 4px">Passwords, CRN and PIN stay in your Google Apps Script and are never sent to this phone.</p>`}
@@ -696,8 +701,34 @@ async function logout(){const ok=await sheet({title:'Lock IPO Hub?',lead:'You’
   if(!ok)return;PASS='';LS.del('ipohub_pass');VIEW=null;for(const k in CACHE)delete CACHE[k];ACC=[];ACC_T=0;login()}
 
 /* ================= install, offline, pull to refresh ================= */
+const STANDALONE=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function installEnv(){const ua=navigator.userAgent;
+  if(location.protocol==='file:')return 'file';
+  if(/FBAN|FBAV|Messenger|Viber|Instagram|Line\/|; wv\)/.test(ua))return 'inapp';
+  if(/iPhone|iPad|iPod/.test(ua))return 'ios';
+  if(/SamsungBrowser/.test(ua))return 'samsung';
+  if(/Android/.test(ua))return 'android';
+  return 'desktop'}
+async function installHelp(){
+  if(DEFERRED){DEFERRED.prompt();const c=await DEFERRED.userChoice;DEFERRED=null;if(c&&c.outcome==='accepted')toast('Installed. Open IPO Hub from your home screen.');go();return}
+  const env=installEnv(),addr=location.href.split('#')[0];
+  const step=t=>`<div class="row"><div class="main" style="white-space:normal">${t}</div></div>`;
+  const S={
+    file:['This copy is opened from a file','A phone can only install IPO Hub from its web address. Upload the app to GitHub Pages, then open https://YOUR-USERNAME.github.io/ipo-hub/ in Chrome.',[]],
+    inapp:['Open this page in Chrome first','You opened IPO Hub inside another app (like Viber or Messenger), which can’t install it.',['Tap the ⋮ or share menu in this window','Choose <b>Open in Chrome</b> (or Open in browser)','In Chrome, tap ⋮ then <b>Install app</b> or <b>Add to Home screen</b>']],
+    android:['Install from Chrome’s menu','',['Tap the <b>⋮</b> menu at the top right of Chrome','Tap <b>Install app</b>. If you only see <b>Add to Home screen</b>, tap that and then <b>Install</b>','Open IPO Hub from your home screen']],
+    samsung:['Install from Samsung Internet','',['Tap the <b>≡</b> menu at the bottom','Tap <b>Add page to</b>, then <b>Home screen</b>','Or open the same address in Chrome and use ⋮ then Install app']],
+    ios:['Add to your Home Screen','iPhone can only do this from Safari.',['Open this page in <b>Safari</b>','Tap the <b>Share</b> button (square with an arrow)','Tap <b>Add to Home Screen</b>, then <b>Add</b>']],
+    desktop:['Install on this computer','',['In Chrome or Edge, click the install icon at the right end of the address bar','Or open the ⋮ menu and choose <b>Install IPO Hub</b>','To use it on your phone, open the same address in Chrome on the phone']]
+  }[env];
+  await sheet({title:S[0],lead:S[1]||'',body:(S[2].length?`<div class="group">${S[2].map((t,n)=>step(`<b>${n+1}.</b> ${t}`)).join('')}</div>`:'')+
+    (env!=='file'?`<div class="sec">This page’s address</div><div class="group"><div class="row"><div class="main s" style="white-space:normal;word-break:break-all">${esc(addr)}</div><button class="sbtn" data-a="${esc(addr)}" onclick="copyText(this.dataset.a).then(ok=>this.textContent=ok?'Copied':'Copy failed')">${IC.copy}Copy</button></div></div>`:''),
+    actions:[{label:'Done'}]})}
+function installBanner(){if(STANDALONE()||LS.get('ipohub_noinst'))return '';
+  return `<div class="note info" id="instb">${IC.download}<div style="flex:1"><b>Install IPO Hub on this phone</b><br>Opens full screen from your home screen, like any other app.
+   <div class="acts"><button class="sbtn" onclick="installHelp()">Install</button><button class="sbtn" style="background:none" onclick="LS.set('ipohub_noinst','1');$('#instb').remove()">Not now</button></div></div></div>`}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DEFERRED=e;if(TAB==='acc'&&CACHE.acc)renderAcc()});
-async function install(){if(!DEFERRED)return;DEFERRED.prompt();await DEFERRED.userChoice;DEFERRED=null;if(CACHE.acc)renderAcc()}
+async function install(){return installHelp()}
 window.addEventListener('online',()=>{const o=$('#off');if(o)o.hidden=true});
 window.addEventListener('offline',()=>{const o=$('#off');if(o)o.hidden=false});
 (function(){let y0=null,dy=0;
