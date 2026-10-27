@@ -1,6 +1,6 @@
 /* IPO Hub service worker: caches the app shell so it opens instantly and offline.
    Data calls to Apps Script are never cached. Bump VERSION when you upload new files. */
-const VERSION = 'ipohub-v7';
+const VERSION = 'ipohub-v8';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './archivo.woff2'];
 
 self.addEventListener('install', e => {

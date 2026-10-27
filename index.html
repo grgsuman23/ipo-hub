@@ -262,7 +262,7 @@ const IC={
 
 /* ================= transport ================= */
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbzDHBHyDzpZoTzg8AU0bddZJvRRmtJSBsNG6tK2_Hsg5_jIopyKCMBssCywzvqJbM0hGQ/exec';
-const APP_VERSION='2.0.4';
+const APP_VERSION='2.0.5';
 const CDSC_URL='https://iporesult.cdsc.com.np/';
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let API=LS.get('ipohub_api')||DEFAULT_API,PASS=LS.get('ipohub_pass')||'';
@@ -392,41 +392,50 @@ async function scrApply(my){
   let d=CACHE.ipo;
   if(d)renderApply();
   if(!d||Date.now()-d.t>60000){const r=await all('getIssues');if(my!==CUR)return;CACHE.ipo={r,t:Date.now()};renderApply()}}
+/* An account can apply when MeroShare says "apply"/"reapply", or when MeroShare gives no status at all
+   (MeroShare itself refuses a second application from the same BOID, so trying is safe). */
+const ELIG=a=>a==='apply'||a==='reapply'||a==='';
+const APPLIED=a=>a==='inProcess'||a==='edit';
 function renderApply(){
   const r=CACHE.ipo.r;ISSUES={};
   r.filter(x=>x.ok).forEach(x=>x.data.forEach(i=>{const m=ISSUES[i.companyShareId]=ISSUES[i.companyShareId]||{id:i.companyShareId,company:i.companyName,scrip:i.scrip,type:i.shareTypeName,group:i.shareGroupName,closes:i.issueCloseDate,acc:{},raw:{}};m.acc[x.label]=i.action||'';m.raw[x.label]=i}));
-  const l=Object.values(ISSUES),cnt3={apply:0,done:0,other:0};
-  l.forEach(i=>Object.values(i.acc).forEach(a=>{if(a==='apply')cnt3.apply++;else if(a==='inProcess'||a==='edit')cnt3.done++;else cnt3.other++}));
-  const parts=[cnt3.apply&&`${cnt3.apply} to apply`,cnt3.done&&`${cnt3.done} applied`,cnt3.other&&`${cnt3.other} no status`].filter(Boolean).join(', ');
+  const l=Object.values(ISSUES),c3={todo:0,done:0};
+  l.forEach(i=>Object.values(i.acc).forEach(a=>{if(APPLIED(a))c3.done++;else if(ELIG(a))c3.todo++}));
+  const parts=[c3.todo&&`${c3.todo} can apply`,c3.done&&`${c3.done} applied`].filter(Boolean).join(', ');
   setBar('Apply IPO',l.length?`${plural(l.length,'issue')} open${parts?': '+parts:''}`:'No issues open right now');
   $('#m').innerHTML=installBanner()+accErrs(r)+(l.length?l.map(i=>{
     const c=closesIn(i.closes);
-    const rows=ACC.map(a=>{const listed=a.label in i.acc,act=i.acc[a.label],can=act==='apply',st=!listed?['Not listed','p-n']:act?(ACT[act]||[act,'p-n']):['No status','p-n'];
+    const rows=ACC.map(a=>{const listed=a.label in i.acc,act=i.acc[a.label],can=listed&&ELIG(act);
+      const st=!listed?['Not listed','p-n']:APPLIED(act)?['Applied','p-g']:act==='apply'?['Not applied','p-a']:act==='reapply'?['Can reapply','p-r']:act===''?['Status unknown','p-n']:[act,'p-n'];
       return `<label class="row${can?'':' dis'}">${av(a.label)}<div class="main"><div class="t">${esc(a.label)}</div><div class="s">${esc(a.kitta||10)} kitta by default</div></div>
-      <span class="pill ${st[1]}">${esc(st[0])}</span><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'checked':'disabled'} onchange="cnt(${i.id})" aria-label="Apply from ${esc(a.label)}"></label>`}).join('');
-    const anyCan=Object.values(i.acc).includes('apply');
+      <span class="pill ${st[1]}">${esc(st[0])}</span><input type="checkbox" class="ck" data-i="${i.id}" value="${esc(a.label)}" ${can?'':'disabled'} onchange="cnt(${i.id})" aria-label="Select ${esc(a.label)}"></label>`}).join('');
+    const nCan=canList(i.id).length;
     return `<div class="group" style="margin-bottom:14px"><div class="ghead"><h2>${esc(i.company)}</h2>
       <div class="s"><span>${esc(i.scrip)}</span><span>${esc([i.type,i.group].filter(Boolean).join(', '))}</span>${c?`<span class="pill ${c[1]}">${esc(c[0])}</span>`:''}<button class="sbtn" style="margin-left:auto" onclick="rawSheet(${i.id})">MeroShare details</button></div></div>
-      ${anyCan?`<div class="row" style="min-height:44px;padding:8px 14px"><div class="main s" id="sel_${i.id}"></div><button class="sbtn" onclick="selAll(${i.id})" id="sa_${i.id}">Select all</button></div>`:''}
+      ${nCan?`<div class="row" style="min-height:44px;padding:8px 14px"><div class="main s" id="sel_${i.id}"></div><button class="sbtn" onclick="selAll(${i.id})" id="sa_${i.id}">Tick all</button></div>`:''}
       ${rows}
-      ${anyCan?`<div class="gfoot"><div class="step" role="group" aria-label="Kitta"><button onclick="kstep(${i.id},-10)" aria-label="Less">−</button><span id="kv_${i.id}"></span><button onclick="kstep(${i.id},10)" aria-label="More">+</button></div>
-      <button class="btn btn-red" style="flex:1" id="ab_${i.id}" onclick="applySel(${i.id})"></button></div>`:''}</div>`}).join('')
+      ${nCan?`<div class="gfoot" style="display:grid;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span class="s mu">Kitta per account</span><div class="step" role="group" aria-label="Kitta"><button onclick="kstep(${i.id},-10)" aria-label="Less">−</button><span id="kv_${i.id}"></span><button onclick="kstep(${i.id},10)" aria-label="More">+</button></div></div>
+        <button class="btn btn-red full" onclick="applySel(${i.id},'all')" id="aa_${i.id}">Apply from all ${plural(nCan,'account')}</button>
+        <button class="btn btn-soft full" onclick="applySel(${i.id},'sel')" id="ab_${i.id}"></button></div>`
+      :`<div class="gfoot s mu">${Object.values(i.acc).some(APPLIED)?'Every account that can apply has applied.':'None of your accounts can apply for this issue.'}</div>`}</div>`}).join('')
     :empty('No IPOs open right now','When a new issue opens for any of your accounts, it appears here.'));
   l.forEach(i=>{kshow(i.id);cnt(i.id)})}
 async function rawSheet(id){const i=ISSUES[id];if(!i)return;
   const fields=Object.entries(i.raw).map(([lab,o])=>`<div class="sec">${esc(lab)}</div><div class="group kv">${Object.entries(o).filter(([k,v])=>v===null||typeof v!=='object').map(([k,v])=>`<div class="row"><span class="k">${esc(k)}</span><span class="val" style="font-weight:500;white-space:normal;word-break:break-all">${esc(v===null?'null':v)}</span></div>`).join('')}</div>`).join('');
   await sheet({title:i.company,lead:'Exactly what MeroShare returned for each account. Nothing here is secret, so you can screenshot it.',body:fields})}
 const picked=id=>[...document.querySelectorAll(`.ck[data-i="${id}"]:checked`)].map(c=>c.value);
-const canList=id=>ACC.filter(a=>ISSUES[id]&&ISSUES[id].acc[a.label]==='apply').map(a=>a.label);
+const canList=id=>ACC.filter(a=>ISSUES[id]&&(a.label in ISSUES[id].acc)&&ELIG(ISSUES[id].acc[a.label])).map(a=>a.label);
 function cnt(id){const b=$('#ab_'+id);if(!b)return;const n=picked(id).length,tot=canList(id).length;
-  b.disabled=!n;b.textContent=!n?'Select an account':n===tot&&tot>1?`Apply from all ${n}`:`Apply from ${n}`;
-  $('#sel_'+id).textContent=`${n} of ${tot} selected`;$('#sa_'+id).textContent=n===tot?'Select none':'Select all'}
+  b.disabled=!n;b.textContent=n?`Apply from ${n} selected`:'Tick accounts to apply from selected';
+  $('#sel_'+id).textContent=`${n} of ${tot} ticked`;$('#sa_'+id).textContent=n===tot?'Untick all':'Tick all'}
 function selAll(id){const on=picked(id).length!==canList(id).length;document.querySelectorAll(`.ck[data-i="${id}"]:not(:disabled)`).forEach(c=>c.checked=on);cnt(id)}
 function kshow(id){const e=$('#kv_'+id);if(e)e.textContent=KT[id]?KT[id]+' kitta':'Default kitta'}
 function kstep(id,d){let v=(KT[id]||0)+d;if(v<10)v=null;KT[id]=v;kshow(id)}
-async function applySel(id){
-  const labels=picked(id),i=ISSUES[id];if(!labels.length)return;
-  const k=KT[id]||null,b=$('#ab_'+id);b.disabled=true;b.textContent='Checking…';
+async function applySel(id,mode){
+  const labels=mode==='all'?canList(id):picked(id),i=ISSUES[id];if(!labels.length)return;
+  const k=KT[id]||null,b=$(mode==='all'?'#aa_'+id:'#ab_'+id),lbl=b.textContent;b.disabled=true;b.textContent='Checking…';
+  const other=$(mode==='all'?'#ab_'+id:'#aa_'+id);if(other)other.disabled=true;
   try{
     const dry=await some(labels,'applyIssue',id,k,true);
     const ok=dry.filter(x=>x.ok&&x.data.status==='dry-run').map(x=>x.label);
@@ -444,7 +453,7 @@ async function applySel(id){
     toast(done.length===ok.length?`Applied from ${plural(done.length,'account')}`:`Applied from ${done.length} of ${ok.length}. Check the details.`,done.length===ok.length?'':'err');
     if(done.length!==ok.length)await sheet({title:'Application results',body:`<div class="group">${res.map(x=>{const g=x.ok&&x.data.status==='applied';return `<div class="row">${av(x.label)}<div class="main"><div class="t">${esc(x.label)}</div><div class="s" style="white-space:normal">${esc(x.ok?x.data.detail:x.error)}</div></div><span class="pill ${g?'p-g':'p-r'}">${g?'Applied':'Failed'}</span></div>`}).join('')}</div>`});
     go();
-  }finally{if($('#ab_'+id))cnt(id)}}
+  }finally{if($('#aa_'+id)){const x=$('#aa_'+id);x.disabled=false;if(mode==='all')x.textContent=lbl}if($('#ab_'+id))cnt(id)}}
 
 /* ================= shared result data ================= */
 function loadView(force){
